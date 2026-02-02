@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CSV Logger</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 0.6s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(118, 75, 162, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-top: 14px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>📄 CSV Data Logger</h2>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" placeholder="Enter your name" />
+    </div>
+
+    <div class="field">
+      <label for="age">Age</label>
+      <input id="age" type="number" placeholder="Enter your age" />
+    </div>
+
+    <button onclick="saveData()">Save to CSV</button>
+
+    <div class="hint">
+      Thanks,We would like to see you again!
+    </div>
+  </div>
+
+  <script>
+    const GITHUB_TOKEN = "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";
+    const OWNER = "monirol4664-glitch";
+    const REPO = "datalogger-";
+    const FILE_PATH = "data.csv";
+
+    async function saveData() {
+      const name = document.getElementById("name").value;
+      const age = document.getElementById("age").value;
+
+      if (!name || !age) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`;
+
+      const res = await fetch(url, {
+        headers: { Authorization: `token ${GITHUB_TOKEN}` }
+      });
+
+      const file = await res.json();
+      const content = atob(file.content);
+
+      const updated =
+        content + `\n${name},${age},${new Date().toISOString()}`;
+
+      await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: "Add new entry",
+          content: btoa(updated),
+          sha: file.sha
+        })
+      });
+
+      alert("✅ Saved successfully!");
+
+      document.getElementById("name").value = "";
+      document.getElementById("age").value = "";
+    }
+  </script>
+
+</body>
+</html>
