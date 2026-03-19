@@ -1,6 +1,6 @@
 // script.js (GLOBAL FRONTEND SCRIPT)
 
-const API = "https://your-worker-url.workers.dev";
+const API = "https://muddy-frog-54f3.monirol4664.workers.dev";
 
 /* =========================
    AUTH (LOGIN / SIGNUP)
