@@ -119,17 +119,14 @@ async function loadPayments(){
    RESULT FUNCTIONS
 ========================= */
 
+// ONLY CHANGE THIS FUNCTION
+
 async function viewResult(grade){
   let user = JSON.parse(localStorage.getItem("user"));
   let box = document.getElementById("res-" + grade);
 
   let res = await fetch(API + "/view-result?id=" + user.id + "&grade=" + grade);
   let data = await res.json();
-
-  if(data.locked){
-    box.innerHTML = "<p style='color:red;'>🔒 Result locked. Complete payment.</p>";
-    return;
-  }
 
   let html = "";
   data.result.forEach(r=>{
