@@ -1,0 +1,50 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Elite University</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <img src="logo.png" class="logo">
+  <div class="nav-links">
+    <a href="login.html" class="btn-outline">Login</a>
+    <a href="signup.html" class="btn-primary">Get Started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-overlay"></div>
+
+  <div class="slider">
+    <img src="assets/1.jpg">
+    <img src="assets/2.jpg">
+    <img src="assets/3.jpg">
+  </div>
+
+  <div class="hero-content">
+    <h1>Elite University</h1>
+    <p>Modern Academic Portal for Students</p>
+
+    <div class="hero-buttons">
+      <a href="login.html" class="btn-primary">Student Login</a>
+      <a href="signup.html" class="btn-outline">Apply Now</a>
+    </div>
+  </div>
+</section>
+
+<script>
+let i = 0;
+const slides = document.querySelectorAll(".slider img");
+
+setInterval(()=>{
+  slides.forEach(s=>s.style.opacity="0");
+  slides[i].style.opacity="1";
+  i = (i+1)%slides.length;
+},3000);
+</script>
+
+</body>
+</html>

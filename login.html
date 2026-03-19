@@ -1,0 +1,41 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+<h2>Student Login</h2>
+
+<label>Email Address</label>
+<input id="email" placeholder="Enter your registered email">
+
+<label>Password</label>
+<input id="password" type="password" placeholder="Enter your password">
+
+<button onclick="login()">Login to Dashboard</button>
+
+</div>
+
+<script>
+const API = "https://your-worker-url.workers.dev";
+
+async function login(){
+  let res = await fetch(API+"/login",{
+    method:"POST",
+    body: JSON.stringify({
+      email: email.value,
+      password: password.value
+    })
+  });
+
+  let data = await res.json();
+  localStorage.setItem("user", JSON.stringify(data));
+  location.href="dashboard.html";
+}
+</script>
+
+</body>
+</html>

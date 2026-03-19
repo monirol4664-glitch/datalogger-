@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "builds": [
-    { "src": "package.json", "use": "@vercel/next" }
-  ],
-  "routes": [
-    { "src": "/rss.xml", "headers": { "cache-control": "s-maxage=43200, stale-while-revalidate" }, "dest": "/rss.xml" }
-  ]
-}

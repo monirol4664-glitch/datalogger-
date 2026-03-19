@@ -1,0 +1,175 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+<style>
+.section-box{
+  background:#111;
+  padding:15px;
+  border-radius:10px;
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+<h2>Student Dashboard</h2>
+
+<!-- PROFILE -->
+<div class="card">
+<h3>Profile Settings</h3>
+
+<label>Full Name</label>
+<input id="name" placeholder="Enter your name">
+
+<label>Registration Number</label>
+<input id="reg" placeholder="e.g. 2024-REG-001">
+
+<label>Roll Number</label>
+<input id="roll" placeholder="e.g. 101">
+
+<label>Father's Name</label>
+<input id="father" placeholder="Enter father's name">
+
+<button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+</div>
+
+<!-- RESULTS SECTION -->
+<div class="card">
+<h3>Academic Results</h3>
+<p>View and download your academic results</p>
+<div id="results"></div>
+</div>
+
+<!-- PAYMENT SECTION -->
+<div class="card">
+<h3>Payments</h3>
+<p>Complete your payments and download memo</p>
+<div id="payments"></div>
+</div>
+
+</div>
+
+<script>
+const API="https://your-worker-url.workers.dev";
+let user = JSON.parse(localStorage.getItem("user"));
+
+async function saveProfile(){
+  await fetch(API+"/profile",{
+    method:"POST",
+    body: JSON.stringify({
+      id:user.id,
+      name:name.value,
+      reg:reg.value,
+      roll:roll.value,
+      father:father.value
+    })
+  });
+  alert("Profile Updated");
+}
+
+/* LOAD RESULTS */
+async function loadResults(){
+  let res = await fetch(API+"/student-data?id="+user.id);
+  let data = await res.json();
+
+  let html="";
+  data.forEach(d=>{
+    html+=`
+    <div class="section-box">
+      <h4>${d.grade}</h4>
+      <button class="btn-outline" onclick="viewResult('${d.grade}')">View Result</button>
+      <button class="btn-primary" onclick="downloadResult('${d.grade}')">Download Result</button>
+      <div id="res-${d.grade}"></div>
+    </div>
+    `;
+  });
+
+  results.innerHTML=html;
+}
+
+/* LOAD PAYMENTS */
+async function loadPayments(){
+  let res = await fetch(API+"/student-data?id="+user.id);
+  let data = await res.json();
+
+  let html="";
+  data.forEach(d=>{
+    html+=`
+    <div class="section-box">
+      <h4>${d.grade}</h4>
+      <button class="btn-primary" onclick="pay('${d.payment_id}')">Pay Now</button>
+      <button class="btn-outline" onclick="downloadMemo('${d.payment_id}')">Download Memo</button>
+    </div>
+    `;
+  });
+
+  payments.innerHTML=html;
+}
+
+/* VIEW RESULT */
+async function viewResult(g){
+  let box=document.getElementById("res-"+g);
+
+  let res=await fetch(API+"/view-result?id="+user.id+"&grade="+g);
+  let data=await res.json();
+
+  if(data.locked){
+    box.innerHTML="<p style='color:red;'>🔒 Result locked. Pay first.</p>";
+  } else {
+    let h="";
+    data.result.forEach(r=>{
+      h+=`<p>${r.subject} | ${r.result_grade} | CGPA: ${r.cgpa}</p>`;
+    });
+    box.innerHTML=h;
+  }
+}
+
+/* DOWNLOAD RESULT */
+async function downloadResult(g){
+  let res = await fetch(API+"/view-result?id="+user.id+"&grade="+g);
+  let data = await res.json();
+
+  if(data.locked){
+    alert("Complete payment first");
+    return;
+  }
+
+  let txt="Elite University Result\n\n";
+  data.result.forEach(r=>{
+    txt+=`${r.subject} ${r.result_grade} ${r.cgpa}\n`;
+  });
+
+  let blob=new Blob([txt]);
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="result.txt";
+  a.click();
+}
+
+/* PAYMENT */
+function pay(pid){
+  location.href=API+"/bkash?pid="+pid+"&uid="+user.id;
+}
+
+/* MEMO */
+async function downloadMemo(pid){
+  let res = await fetch(API+"/memo?pid="+pid+"&uid="+user.id);
+  let text = await res.text();
+
+  let blob=new Blob([text]);
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="payment_memo.txt";
+  a.click();
+}
+
+loadResults();
+loadPayments();
+</script>
+
+</body>
+</html>
