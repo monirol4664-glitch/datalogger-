@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+<h2>Admin Panel</h2>
+
+<!-- PAYMENT -->
+<div class="card">
+<h3>Create Payment</h3>
+
+<input id="p_grade" placeholder="Semester">
+<input id="p_name" placeholder="Payment Name">
+<input id="p_amount" placeholder="Amount">
+
+<button onclick="createPayment()" class="btn-primary">Create</button>
+</div>
+
+<!-- RESULT -->
+<div class="card">
+<h3>Add Result</h3>
+
+<input id="r_sid" placeholder="Student ID">
+<input id="r_grade" placeholder="Semester">
+<input id="r_subject" placeholder="Subject">
+<input id="r_gradeval" placeholder="Grade">
+<input id="r_cgpa" placeholder="CGPA">
+
+<button onclick="addResult()" class="btn-primary">Add</button>
+</div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
