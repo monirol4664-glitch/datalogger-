@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nexus University | Where Tradition Meets Innovation</title>
+  <!-- Google Fonts: Modern & Elegant -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fefefe;
+      color: #1e2a32;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Theme: Midnight & Copper */
+    :root {
+      --midnight: #0b2b2b;
+      --copper: #b55b3c;
+      --copper-light: #d47a57;
+      --sand: #f5efe7;
+      --deep-teal: #1f4e4e;
+      --warm-gray: #e9e2d9;
+    }
+
+    /* header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(181, 91, 60, 0.2);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      cursor: pointer;
+    }
+
+    .logo i {
+      font-size: 2rem;
+      color: var(--copper);
+    }
+
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--midnight);
+      letter-spacing: -0.02em;
+    }
+
+    .logo span {
+      color: var(--copper);
+      font-weight: 800;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      font-weight: 500;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #2c3e3e;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-links a:hover {
+      color: var(--copper);
+    }
+
+    .cta-btn {
+      background: var(--copper);
+      color: white !important;
+      padding: 0.5rem 1.4rem;
+      border-radius: 40px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .cta-btn:hover {
+      background: var(--midnight);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--midnight);
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--copper);
+      color: var(--copper);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: var(--copper);
+      color: white;
+    }
+
+    /* Hero section */
+    .hero {
+      background: linear-gradient(120deg, #fefaf5 0%, #f8f3ec 100%);
+      padding: 4rem 0 5rem 0;
+      border-bottom: 1px solid #ede6dd;
+    }
+
+    .hero-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2.5rem;
+    }
+
+    .hero-content {
+      flex: 1.2;
+    }
+
+    .hero-badge {
+      background: rgba(181, 91, 60, 0.12);
+      display: inline-block;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--copper);
+      margin-bottom: 1rem;
+    }
+
+    .hero-content h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--midnight);
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-content p {
+      font-size: 1.1rem;
+      color: #4a5b5b;
+      margin-bottom: 2rem;
+      max-width: 90%;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--midnight);
+      color: white;
+      padding: 0.9rem 2rem;
+      border-radius: 48px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: var(--copper);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      border: 2px solid var(--midnight);
+      background: transparent;
+      color: var(--midnight);
+      padding: 0.9rem 2rem;
+      border-radius: 48px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-outline:hover {
+      background: var(--midnight);
+      color: white;
+    }
+
+    /* Auth Pages */
+    .auth-container {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      background: linear-gradient(120deg, #fefaf5 0%, #f8f3ec 100%);
+    }
+
+    .auth-card {
+      background: white;
+      border-radius: 32px;
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #efe5db;
+    }
+
+    .auth-card h2 {
+      font-size: 2rem;
+      color: var(--midnight);
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-card p {
+      color: #6b7e7e;
+      margin-bottom: 2rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--midnight);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 1px solid #e2d8cf;
+      border-radius: 16px;
+      font-size: 1rem;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--copper);
+      box-shadow: 0 0 0 3px rgba(181, 91, 60, 0.1);
+    }
+
+    .auth-btn {
+      width: 100%;
+      background: var(--midnight);
+      color: white;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 48px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .auth-btn:hover {
+      background: var(--copper);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #6b7e7e;
+    }
+
+    .auth-switch a {
+      color: var(--copper);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      color: #b55b3c;
+      padding: 0.75rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .success-message {
+      background: #e6f4ea;
+      color: #1f4e4e;
+      padding: 0.75rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* Dashboard */
+    .dashboard-container {
+      min-height: 70vh;
+      padding: 4rem 2rem;
+      background: linear-gradient(120deg, #fefaf5 0%, #f8f3ec 100%);
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 32px;
+      padding: 2.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+      border: 1px solid #efe5db;
+    }
+
+    .dashboard-card h2 {
+      color: var(--midnight);
+      margin-bottom: 1rem;
+    }
+
+    .welcome-badge {
+      background: rgba(181, 91, 60, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      color: var(--copper);
+      font-weight: 500;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .info-item {
+      background: #fefbf7;
+      padding: 1.2rem;
+      border-radius: 20px;
+      border: 1px solid #efe5db;
+    }
+
+    .info-item i {
+      font-size: 1.8rem;
+      color: var(--copper);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Sections */
+    section {
+      padding: 5rem 0;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--midnight);
+    }
+
+    .section-sub {
+      text-align: center;
+      color: #6b7e7e;
+      max-width: 680px;
+      margin: -0.5rem auto 3rem auto;
+    }
+
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .program-card {
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 1.5rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
+      border: 1px solid #efe8e0;
+    }
+
+    .program-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.08);
+      border-color: var(--copper-light);
+    }
+
+    .program-icon {
+      font-size: 2.5rem;
+      color: var(--copper);
+      margin-bottom: 1.2rem;
+    }
+
+    .program-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--midnight);
+    }
+
+    .program-link {
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--copper);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .features-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .feature {
+      background: #ffffff;
+      border-radius: 32px;
+      padding: 2rem;
+      flex: 1 1 260px;
+      text-align: center;
+      border: 1px solid #efe5db;
+    }
+
+    .feature i {
+      font-size: 2.2rem;
+      background: #faf1e9;
+      padding: 0.8rem;
+      border-radius: 60px;
+      color: var(--copper);
+      margin-bottom: 1rem;
+    }
+
+    .cta-block {
+      background: var(--midnight);
+      border-radius: 48px;
+      padding: 3rem 2rem;
+      text-align: center;
+      color: white;
+    }
+
+    .footer {
+      background: #faf7f2;
+      border-top: 1px solid #e8dfd6;
+      padding: 3rem 0 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid #e2d8cf;
+      color: #7c8e8e;
+      font-size: 0.85rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 780px) {
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+      .hero-content h1 {
+        font-size: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header / Navigation -->
+<header class="header">
+  <div class="container">
+    <nav class="navbar">
+      <div class="logo" onclick="navigateTo('home')">
+        <i class="fas fa-landmark"></i>
+        <h1>Nexus<span>U</span></h1>
+      </div>
+      <ul class="nav-links" id="navLinks">
+        <li><a onclick="navigateTo('home')">Home</a></li>
+        <li><a onclick="navigateTo('home')">Academics</a></li>
+        <li><a onclick="navigateTo('home')">Admissions</a></li>
+        <li><a onclick="navigateTo('home')">Research</a></li>
+        <li><a onclick="navigateTo('home')">Campus Life</a></li>
+      </ul>
+      <div id="authButtons">
+        <a class="cta-btn" onclick="navigateTo('login')" style="cursor: pointer;">Sign In</a>
+      </div>
+      <div id="userMenu" class="user-menu hidden">
+        <span class="user-name" id="userNameDisplay"></span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Main Content Container -->
+<main id="mainContent"></main>
+
+<!-- Footer -->
+<footer class="footer" id="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4><i class="fas fa-university"></i> Nexus University</h4>
+        <p>Inspiring minds, transforming lives since 1885.</p>
+        <div style="margin-top: 1rem;">
+          <i class="fab fa-instagram" style="margin-right: 1rem; color: var(--copper);"></i>
+          <i class="fab fa-linkedin-in" style="margin-right: 1rem; color: var(--copper);"></i>
+          <i class="fab fa-x-twitter" style="color: var(--copper);"></i>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Academics</h4>
+        <ul>
+          <li><a>Schools & Colleges</a></li>
+          <li><a>Graduate Programs</a></li>
+          <li><a>Online Learning</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Campus</h4>
+        <ul>
+          <li><a>Maps & Directions</a></li>
+          <li><a>Housing & Dining</a></li>
+          <li><a>Athletics</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a>Financial Aid</a></li>
+          <li><a>Visit Us</a></li>
+          <li><a>Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>© 2025 Nexus University. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mock user database (localStorage)
+  let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+  // Helper functions
+  function saveUser(user) {
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    users.push(user);
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+
+  function findUser(email, password) {
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    return users.find(u => u.email === email && u.password === password);
+  }
+
+  function findUserByEmail(email) {
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    return users.find(u => u.email === email);
+  }
+
+  function updateAuthUI() {
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+
+    if (currentUser) {
+      authButtons.classList.add('hidden');
+      userMenu.classList.remove('hidden');
+      userNameDisplay.textContent = currentUser.name;
+    } else {
+      authButtons.classList.remove('hidden');
+      userMenu.classList.add('hidden');
+    }
+  }
+
+  function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    updateAuthUI();
+    navigateTo('home');
+  }
+
+  // Routing function
+  function navigateTo(page, eventData = null) {
+    const mainContent = document.getElementById('mainContent');
+    const footer = document.getElementById('footer');
+
+    if (page === 'home') {
+      footer.classList.remove('hidden');
+      renderHomePage(mainContent);
+    } else if (page === 'login') {
+      footer.classList.add('hidden');
+      renderLoginPage(mainContent);
+    } else if (page === 'register') {
+      footer.classList.add('hidden');
+      renderRegisterPage(mainContent);
+    } else if (page === 'dashboard') {
+      footer.classList.add('hidden');
+      renderDashboardPage(mainContent);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Home Page Render
+  function renderHomePage(container) {
+    container.innerHTML = `
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-content">
+            <span class="hero-badge"><i class="fas fa-award"></i> Est. 1885 · Reimagined for tomorrow</span>
+            <h1>Where curiosity <br> meets <span style="color: var(--copper);">purpose</span></h1>
+            <p>Nexus University is a vibrant community of scholars, creators, and leaders. We empower students to ask bold questions and build meaningful futures.</p>
+            <div class="hero-buttons">
+              <button class="btn-primary" onclick="navigateTo('register')"><i class="fas fa-graduation-cap"></i> Apply Now</button>
+              <button class="btn-outline" onclick="navigateTo('login')"><i class="fas fa-sign-in-alt"></i> Student Portal</button>
+            </div>
+          </div>
+          <div class="hero-image">
+            <img src="https://placehold.co/600x450/e9e2d9/b55b3c?text=Nexus+Campus" alt="Nexus University campus">
+          </div>
+        </div>
+      </section>
+
+      <div class="stats">
+        <div class="container stats-grid" style="display: flex; justify-content: space-between; gap: 2rem; text-align: center; flex-wrap: wrap;">
+          <div class="stat-item"><h3><i class="fas fa-user-graduate"></i> 8,200+</h3><p>Enrolled Students</p></div>
+          <div class="stat-item"><h3><i class="fas fa-chalkboard-user"></i> 97%</h3><p>Faculty with PhDs</p></div>
+          <div class="stat-item"><h3><i class="fas fa-globe-americas"></i> 65+</h3><p>Countries Represented</p></div>
+          <div class="stat-item"><h3><i class="fas fa-flask"></i> 40+</h3><p>Research Centers</p></div>
+        </div>
+      </div>
+
+      <section>
+        <div class="container">
+          <h2 class="section-title">Academic excellence</h2>
+          <p class="section-sub">Rigorous programs designed to cultivate critical thinking, creativity, and real-world impact.</p>
+          <div class="programs-grid">
+            <div class="program-card"><div class="program-icon"><i class="fas fa-microscope"></i></div><h3>Biomedical Sciences</h3><p>Cutting-edge research in genetics and neuroscience.</p><a class="program-link">Discover <i class="fas fa-arrow-right"></i></a></div>
+            <div class="program-card"><div class="program-icon"><i class="fas fa-chart-line"></i></div><h3>Economics & Public Policy</h3><p>Data-driven approaches to global challenges.</p><a class="program-link">Discover <i class="fas fa-arrow-right"></i></a></div>
+            <div class="program-card"><div class="program-icon"><i class="fas fa-palette"></i></div><h3>Design & Innovation</h3><p>Human-centered design and sustainable architecture.</p><a class="program-link">Discover <i class="fas fa-arrow-right"></i></a></div>
+            <div class="program-card"><div class="program-icon"><i class="fas fa-robot"></i></div><h3>Intelligent Systems</h3><p>AI, robotics, and ethical computing.</p><a class="program-link">Discover <i class="fas fa-arrow-right"></i></a></div>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: #fefbf7;">
+        <div class="container">
+          <h2 class="section-title">A campus that inspires</h2>
+          <div class="features-flex">
+            <div class="feature"><i class="fas fa-tree"></i><h3>Botanical Gardens</h3><p>120-acre arboretum with walking trails.</p></div>
+            <div class="feature"><i class="fas fa-building"></i><h3>Archival Library</h3><p>Rare manuscripts and digital collections.</p></div>
+            <div class="feature"><i class="fas fa-music"></i><h3>Performing Arts</h3><p>Concert hall and theater productions.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <div class="cta-block">
+            <h2>Your future starts here</h2>
+            <p>Join a legacy of thinkers, doers, and changemakers.</p>
+            <button class="btn-light" onclick="navigateTo('register')" style="background: var(--copper); color: white; border: none; padding: 0.9rem 2rem; border-radius: 48px; cursor: pointer;"><i class="fas fa-calendar-check"></i> Start Your Application</button>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  // Login Page
+  function renderLoginPage(container) {
+    container.innerHTML = `
+      <div class="auth-container">
+        <div class="auth-card">
+          <h2>Welcome back</h2>
+          <p>Sign in to access your student portal</p>
+          <div id="loginError" class="error-me
