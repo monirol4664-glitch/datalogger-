@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://YOUR_WORKER_URL.workers.dev';
+const API_BASE_URL = 'https://lively-field-f91e.monirol4664.workers.dev';
 
 export async function register(data) {
   const response = await fetch(`${API_BASE_URL}/api/register`, {
