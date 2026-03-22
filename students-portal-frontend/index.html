@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">Student Portal</div>
+    <div class="nav-links">
+      <a href="#" data-page="home" class="nav-link">Home</a>
+      <a href="#" data-page="courses" class="nav-link">Courses</a>
+      <a href="#" data-page="grades" class="nav-link">Grades</</a>
+      <a href="#" data-page="assignments" class="nav-link">Assignments</a>
+      <a href="#" data-page="announcements" class="nav-link">Announcements</a>
+    </div>
+    <div class="nav-auth">
+      <a href="#" id="nav-login-btn" class="nav-link">Login</a>
+      <a href="#" id="nav-register-btn" class="nav-link hidden">Register</a>
+      <a href="#" id="nav-logout-btn" class="nav-link hidden">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Home Page -->
+  <div id="home-page" class="page active">
+    <div class="hero">
+      <h1>Welcome to Student Portal</h1>
+      <p>Your one-stop destination for courses, grades, assignments, and announcements.</p>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div id="login-page" class="page">
+    <div class="container">
+      <div class="auth-box">
+        <h2>Login</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="login-email" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" required>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="#" id="login-to-register">Register</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Page -->
+  <div id="register-page" class="page">
+    <div class="container">
+      <div class="auth-box">
+        <h2>Register</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select name="role" required>
+              <option value="student">Student</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group" id="student-id-group">
+            <label>Student ID</label>
+            <input type="text" name="student_id">
+          </div>
+          <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="#" id="register-to-login">Login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses Page -->
+  <div id="courses-page" class="page">
+    <div class="container">
+      <h2>My Courses</h2>
+      <div id="courses-list"></div>
+    </div>
+  </div>
+
+  <!-- Course Details Page -->
+  <div id="course-details-page" class="page">
+    <div class="container">
+      <button id="back-to-courses" class="back-button">← Back to Courses</button>
+      <h2 id="course-title">Course Details</h2>
+      <div class="details-section">
+        <h3>Assignments</h3>
+        <div id="assignments-list"></div>
+      </div>
+      <div class="details-section">
+        <h3>Announcements</h3>
+        <div id="announcements-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grades Page -->
+  <div id="grades-page" class="page">
+    <div class="container">
+      <button id="back-to-courses-from-grades" class="back-button">← Back to Courses</button>
+      <h2>My Grades</h2>
+      <div id="grades-list"></div>
+    </div>
+  </div>
+
+  <!-- Assignments Page -->
+  <div id="assignments-page" class="page">
+    <div class="container">
+      <button id="back-to-courses-from-assignments" class="back-button">← Back to Courses</button>
+      <h2>All Assignments</h2>
+      <div id="assignments-list"></div>
+    </div>
+  </div>
+
+  <!-- Announcements Page -->
+  <div id="announcements-page" class="page">
+    <div class="container">
+      <button id="back-to-courses-from-announcements" class="back-button">← Back to Courses</button>
+      <h2>All Announcements</h2>
+      <div id="announcements-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
