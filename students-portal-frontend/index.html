@@ -12,9 +12,7 @@
     <div class="nav-links">
       <a href="#" data-page="home" class="nav-link">Home</a>
       <a href="#" data-page="courses" class="nav-link">Courses</a>
-      <a href="#" data-page="grades" class="nav-link">Grades</</a>
-      <a href="#" data-page="assignments" class="nav-link">Assignments</a>
-      <a href="#" data-page="announcements" class="nav-link">Announcements</a>
+      <a href="#" data-page="grades" class="nav-link">Grades</a>
     </div>
     <div class="nav-auth">
       <a href="#" id="nav-login-btn" class="nav-link">Login</a>
@@ -23,15 +21,13 @@
     </div>
   </nav>
 
-  <!-- Home Page -->
-  <div id="home-page" class="page active">
+  <div id="home-page" class="page">
     <div class="hero">
       <h1>Welcome to Student Portal</h1>
-      <p>Your one-stop destination for courses, grades, assignments, and announcements.</p>
+      <p>Your one-stop destination for courses, grades, and announcements.</p>
     </div>
   </div>
 
-  <!-- Login Page -->
   <div id="login-page" class="page">
     <div class="container">
       <div class="auth-box">
@@ -52,7 +48,6 @@
     </div>
   </div>
 
-  <!-- Register Page -->
   <div id="register-page" class="page">
     <div class="container">
       <div class="auth-box">
@@ -81,7 +76,7 @@
               <option value="admin">Admin</option>
             </select>
           </div>
-          <div class="form-group" id="student-id-group">
+          <div class="form-group">
             <label>Student ID</label>
             <input type="text" name="student_id">
           </div>
@@ -92,7 +87,6 @@
     </div>
   </div>
 
-  <!-- Courses Page -->
   <div id="courses-page" class="page">
     <div class="container">
       <h2>My Courses</h2>
@@ -100,7 +94,6 @@
     </div>
   </div>
 
-  <!-- Course Details Page -->
   <div id="course-details-page" class="page">
     <div class="container">
       <button id="back-to-courses" class="back-button">← Back to Courses</button>
@@ -116,30 +109,11 @@
     </div>
   </div>
 
-  <!-- Grades Page -->
   <div id="grades-page" class="page">
     <div class="container">
       <button id="back-to-courses-from-grades" class="back-button">← Back to Courses</button>
       <h2>My Grades</h2>
       <div id="grades-list"></div>
-    </div>
-  </div>
-
-  <!-- Assignments Page -->
-  <div id="assignments-page" class="page">
-    <div class="container">
-      <button id="back-to-courses-from-assignments" class="back-button">← Back to Courses</button>
-      <h2>All Assignments</h2>
-      <div id="assignments-list"></div>
-    </div>
-  </div>
-
-  <!-- Announcements Page -->
-  <div id="announcements-page" class="page">
-    <div class="container">
-      <button id="back-to-courses-from-announcements" class="back-button">← Back to Courses</button>
-      <h2>All Announcements</h2>
-      <div id="announcements-list"></div>
     </div>
   </div>
 

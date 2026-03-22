@@ -41,17 +41,6 @@ body {
   color: #667eea;
 }
 
-.nav-auth {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-auth a {
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 500;
-}
-
 .hidden {
   display: none !important;
 }

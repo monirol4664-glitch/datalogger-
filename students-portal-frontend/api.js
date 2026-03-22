@@ -1,7 +1,5 @@
-// API Configuration
-const API_BASE_URL = 'https://student-portal-api.YOUR_SUBDOMAIN.workers.dev';
+const API_BASE_URL = 'https://YOUR_WORKER_URL.workers.dev';
 
-// Auth API
 export async function register(data) {
   const response = await fetch(`${API_BASE_URL}/api/register`, {
     method: 'POST',
@@ -20,7 +18,6 @@ export async function login(data) {
   return response.json();
 }
 
-// Student API
 export async function getCourses(studentId) {
   const response = await fetch(`${API_BASE_URL}/api/courses?student_id=${studentId}`);
   return response.json();
@@ -40,24 +37,5 @@ export async function getAssignments(courseId) {
 
 export async function getAnnouncements(courseId) {
   const response = await fetch(`${API_BASE_URL}/api/announcements?course_id=${courseId}`);
-  return response.json();
-}
-
-// Admin API
-export async function createCourse(data) {
-  const response = await fetch(`${API_BASE_URL}/api/admin/courses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  return response.json();
-}
-
-export async function enrollStudent(data) {
-  const response = await fetch(`${API_BASE_URL}/api/admin/enroll`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
   return response.json();
 }

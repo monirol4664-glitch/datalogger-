@@ -1,4 +1,4 @@
--- Users table (students and admins)
+
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT UNIQUE NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at DATETIME DEFAULT CURRENTOUNT_TIMESTAMP
 );
 
--- Courses table
+
 CREATE TABLE IF NOT EXISTS courses (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   code TEXT UNIQUE NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS courses (
   FOREIGN KEY (teacher_id) REFERENCES users(id)
 );
 
--- Student enrollments
+
 CREATE TABLE IF NOT EXISTS enrollments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   student_id INTEGER NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS enrollments (
   UNIQUE(student_id, course_id, semester, year)
 );
 
--- Grades
+
 CREATE TABLE IF NOT EXISTS grades (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   enrollment_id INTEGER NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS grades (
   FOREIGN KEY (enrollment_id) REFERENCES enrollments(id)
 );
 
--- Assignments
+
 CREATE TABLE IF NOT EXISTS assignments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   course_id INTEGER NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS assignments (
   FOREIGN KEY (course_id) REFERENCES courses(id)
 );
 
--- Announcements
+
 CREATE TABLE IF NOT EXISTS announcements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS announcements (
   FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
--- Syllabus/Calendar events
+
 CREATE TABLE IF NOT EXISTS events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS events (
   FOREIGN KEY (course_id) REFERENCES courses(id)
 );
 
--- Indexes for performance
+
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_enrollments_student ON enrollments(student_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
