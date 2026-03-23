@@ -8,6 +8,7 @@ function switchTab(mode) {
     const loginBtn = document.getElementById('tab-login');
     const regBtn = document.getElementById('tab-reg');
 
+    // Toggle active classes for CSS styling
     if (mode === 'register') {
         loginForm.style.display = 'none';
         regForm.style.display = 'block';
