@@ -50,3 +50,53 @@ button#submit-btn {
 button#submit-btn:hover {
     background: var(--accent);
 }
+.dashboard-view {
+    padding: 2rem;
+}
+
+.portal-nav {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    border-bottom: 2px solid var(--black);
+    padding-bottom: 1rem;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+}
+
+.welcome-text {
+    font-size: 8vw;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    margin-bottom: 4rem;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 4rem;
+}
+
+.portal-section {
+    border-top: 1px solid var(--black);
+    padding-top: 1rem;
+}
+
+.portal-section h2 {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+}
+
+.item, .course-grid li {
+    font-size: 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #ddd;
+    list-style: none;
+}
+
+.item span {
+    font-size: 0.7rem;
+    vertical-align: super;
+    margin-right: 1rem;
+}

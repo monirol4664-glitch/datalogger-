@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova | Student Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-view">
+    <nav class="portal-nav">
+        <span>NOVA — PORTAL</span>
+        <div class="user-info">ID: 8829-X <a href="/logout">LOGOUT</a></div>
+    </nav>
+
+    <main class="grid-container">
+        <header class="hero-header">
+            <h1 class="welcome-text">WELCOME,<br><span id="student-name">STUDENT</span>.</h1>
+            <p class="current-date">SPRING SEMESTER 2026</p>
+        </header>
+
+        <section class="portal-section research">
+            <h2>RESEARCH PROJECTS</h2>
+            <div id="research-list" class="list-container">
+                <div class="item"><span>01</span> Quantum Neural Mapping — [ACTIVE]</div>
+                <div class="item"><span>02</span> Sustainable Urban Bio-grids — [PENDING]</div>
+            </div>
+        </section>
+
+        <section class="portal-section courses">
+            <h2>COURSE PORTAL</h2>
+            <ul class="course-grid">
+                <li>ADVANCED ARCHITECTURE — 92%</li>
+                <li>FRONT-END SYSTEMS — 98%</li>
+                <li>BIO-ETHICS — 85%</li>
+            </ul>
+        </section>
+
+        <section class="portal-section life">
+            <h2>STUDENT LIFE</h2>
+            <p>Annual Symposium: March 28th. Check your institutional portal for invitations.</p>
+        </section>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
