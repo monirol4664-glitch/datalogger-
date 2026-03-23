@@ -1,13 +1,35 @@
-const API_URL = "https://lively-field-f91e.monirol4664.workers.dev";
+// CONFIGURATION
+const WORKER_URL = "https://lively-field-f91e.monirol4664.workers.dev";
 
-document.getElementById('portal-form').addEventListener('submit', async (e) => {
+// 1. TAB SWITCHING LOGIC
+function switchTab(mode) {
+    const loginForm = document.getElementById('login-form');
+    const regForm = document.getElementById('reg-form');
+    const loginBtn = document.getElementById('tab-login');
+    const regBtn = document.getElementById('tab-reg');
+
+    if (mode === 'register') {
+        loginForm.style.display = 'none';
+        regForm.style.display = 'block';
+        regBtn.classList.add('active');
+        loginBtn.classList.remove('active');
+    } else {
+        loginForm.style.display = 'block';
+        regForm.style.display = 'none';
+        loginBtn.classList.add('active');
+        regBtn.classList.remove('active');
+    }
+}
+
+// 2. LOGIN HANDLER
+document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
 
     try {
-        const response = await fetch(`${API_URL}/api/login`, {
+        const response = await fetch(`${WORKER_URL}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -16,17 +38,44 @@ document.getElementById('portal-form').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok && data.user) {
-            // Store user ID in localStorage to fetch their profile on the next page
+            // Store session data
             localStorage.setItem('student_id', data.user.id);
             localStorage.setItem('student_name', data.user.full_name);
             
-            // Redirect to the dashboard file
+            // Redirect to dashboard
             window.location.href = 'dashboard.html';
         } else {
-            alert(data.error || 'Login failed. Check your credentials.');
+            alert(data.error || "Login credentials rejected.");
         }
     } catch (err) {
-        console.error("Connection error:", err);
-        alert("Could not connect to Nova Institute servers.");
+        alert("Server connection failed. Check your Worker URL.");
+    }
+});
+
+// 3. REGISTRATION HANDLER
+document.getElementById('reg-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+
+    try {
+        const response = await fetch(`${WORKER_URL}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Enrollment Complete. Please login.");
+            switchTab('login');
+        } else {
+            alert(data.error || "Enrollment failed.");
+        }
+    } catch (err) {
+        alert("Server connection failed.");
     }
 });
