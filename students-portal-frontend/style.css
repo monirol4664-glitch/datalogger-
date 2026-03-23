@@ -1,102 +1,181 @@
+/* --- NOVA INSTITUTE: EDITORIAL SYSTEM --- */
+
 :root {
-    --black: #0a0a0a;
-    --white: #f4f4f4;
-    --accent: #ff4d00;
+    --black: #050505;
+    --white: #ffffff;
+    --grey: #e0e0e0;
+    --accent: #ff4d00; /* International Orange */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    background: var(--white);
-    font-family: 'Inter', sans-serif;
+    background-color: var(--white);
     color: var(--black);
-    margin: 0;
+    font-family: var(--font-main);
+    line-height: 1.4;
+    overflow-x: hidden;
 }
+
+.editorial-container {
+    padding: 5vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* --- TYPOGRAPHY --- */
 
 .mega-title {
-    font-size: 12vw;
-    line-height: 0.8;
-    letter-spacing: -0.05em;
-    margin: 2rem 0;
+    font-size: clamp(4rem, 15vw, 12rem);
     font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
     text-transform: uppercase;
+    margin-bottom: 0.5rem;
 }
 
-.form-wrapper {
-    max-width: 400px;
-    border-top: 2px solid var(--black);
-    padding-top: 1rem;
+.subtitle {
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    font-weight: 400;
+    margin-bottom: 4rem;
+    border-left: 4px solid var(--accent);
+    padding-left: 1rem;
 }
+
+/* --- FORM & TABS --- */
+
+.form-wrapper {
+    max-width: 450px;
+    width: 100%;
+}
+
+.tabs {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--grey);
+}
+
+.tabs button {
+    background: none;
+    border: none;
+    font-family: var(--font-main);
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    padding-bottom: 0.5rem;
+    cursor: pointer;
+    color: #999;
+    transition: 0.2s ease;
+}
+
+.tabs button.active {
+    color: var(--black);
+    border-bottom: 3px solid var(--black);
+}
+
+/* --- INPUTS --- */
 
 input {
     width: 100%;
-    border: none;
-    border-bottom: 1px solid #ccc;
-    background: transparent;
+    display: block;
     padding: 1.5rem 0;
-    font-size: 1.2rem;
+    border: none;
+    border-bottom: 1px solid var(--grey);
+    font-size: 1.1rem;
     outline: none;
+    transition: border-color 0.3s ease;
 }
 
-button#submit-btn {
-    background: var(--black);
+input:focus {
+    border-bottom: 1px solid var(--accent);
+}
+
+input::placeholder {
+    color: #bbb;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+}
+
+/* --- BUTTONS --- */
+
+.submit-btn {
+    margin-top: 3rem;
+    width: 100%;
+    padding: 1.5rem;
+    background-color: var(--black);
     color: var(--white);
     border: none;
-    padding: 1.5rem;
-    width: 100%;
-    margin-top: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-button#submit-btn:hover {
-    background: var(--accent);
+.submit-btn:hover {
+    background-color: var(--accent);
+    transform: translateY(-2px);
 }
-.dashboard-view {
-    padding: 2rem;
-}
+
+/* --- DASHBOARD SPECIFIC --- */
 
 .portal-nav {
     display: flex;
     justify-content: space-between;
-    font-weight: 800;
-    border-bottom: 2px solid var(--black);
-    padding-bottom: 1rem;
-    margin-bottom: 3rem;
-    text-transform: uppercase;
-}
-
-.welcome-text {
-    font-size: 8vw;
-    line-height: 0.9;
-    letter-spacing: -0.04em;
-    margin-bottom: 4rem;
+    align-items: center;
+    padding: 2rem 5vw;
+    border-bottom: 1px solid var(--black);
 }
 
 .grid-container {
+    padding: 5vw;
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 4rem;
 }
 
-.portal-section {
-    border-top: 1px solid var(--black);
-    padding-top: 1rem;
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .mega-title {
+        font-size: 5rem;
+    }
+}
+/* --- LOADING STATES --- */
+
+.submit-btn.loading {
+    background-color: #333;
+    color: transparent;
+    cursor: not-allowed;
+    position: relative;
 }
 
-.portal-section h2 {
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-}
-
-.item, .course-grid li {
-    font-size: 1.5rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #ddd;
-    list-style: none;
-}
-
-.item span {
+.submit-btn.loading::after {
+    content: "PROCESSING...";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--white);
+    letter-spacing: 0.3em;
     font-size: 0.7rem;
-    vertical-align: super;
-    margin-right: 1rem;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
 }

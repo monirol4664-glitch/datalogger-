@@ -1,5 +1,5 @@
 // CONFIGURATION
-const WORKER_URL = "https://lively-field-f91e.monirol4664.workers.dev";
+const WORKER_URL = "https://your-worker-name.subdomain.workers.dev";
 
 // 1. TAB SWITCHING LOGIC
 function switchTab(mode) {
@@ -24,7 +24,12 @@ function switchTab(mode) {
 // 2. LOGIN HANDLER
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = e.target.querySelector('.submit-btn');
     
+    // Start Loading
+    btn.classList.add('loading');
+    btn.disabled = true;
+
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
@@ -38,19 +43,22 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok && data.user) {
-            // Store session data
             localStorage.setItem('student_id', data.user.id);
             localStorage.setItem('student_name', data.user.full_name);
-            
-            // Redirect to dashboard
             window.location.href = 'dashboard.html';
         } else {
-            alert(data.error || "Login credentials rejected.");
+            alert(data.error || "Access Denied.");
         }
     } catch (err) {
-        alert("Server connection failed. Check your Worker URL.");
+        alert("Server connection failed.");
+    } finally {
+        // Stop Loading
+        btn.classList.remove('loading');
+        btn.disabled = false;
     }
 });
+
+        
 
 // 3. REGISTRATION HANDLER
 document.getElementById('reg-form').addEventListener('submit', async (e) => {
