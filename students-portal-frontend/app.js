@@ -1,4 +1,4 @@
-const API_URL = "https://your-worker-name.subdomain.workers.dev";
+const API_URL = "https://lively-field-f91e.monirol4664.workers.dev";
 
 document.getElementById('portal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
