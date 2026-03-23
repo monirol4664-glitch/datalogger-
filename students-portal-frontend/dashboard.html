@@ -2,41 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova | Student Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard-view">
     <nav class="portal-nav">
         <span>NOVA — PORTAL</span>
-        <div class="user-info">ID: 8829-X <a href="/logout">LOGOUT</a></div>
+        <div class="user-info">
+            <span id="user-display">ID: AUTHENTICATING...</span>
+            <a href="#" onclick="logout()" style="margin-left: 20px; color: var(--accent);">LOGOUT</a>
+        </div>
     </nav>
 
     <main class="grid-container">
         <header class="hero-header">
-            <h1 class="welcome-text">WELCOME,<br><span id="student-name">STUDENT</span>.</h1>
-            <p class="current-date">SPRING SEMESTER 2026</p>
+            <h1 class="welcome-text">WELCOME,<br><span id="student-name">...</span>.</h1>
+            <p class="current-date" id="date-display"></p>
         </header>
 
         <section class="portal-section research">
             <h2>RESEARCH PROJECTS</h2>
             <div id="research-list" class="list-container">
-                <div class="item"><span>01</span> Quantum Neural Mapping — [ACTIVE]</div>
-                <div class="item"><span>02</span> Sustainable Urban Bio-grids — [PENDING]</div>
+                <p class="loading-text">SYNCING ARCHIVES...</p>
             </div>
         </section>
 
         <section class="portal-section courses">
             <h2>COURSE PORTAL</h2>
-            <ul class="course-grid">
-                <li>ADVANCED ARCHITECTURE — 92%</li>
-                <li>FRONT-END SYSTEMS — 98%</li>
-                <li>BIO-ETHICS — 85%</li>
-            </ul>
+            <ul id="course-grid" class="course-grid">
+                </ul>
         </section>
 
         <section class="portal-section life">
             <h2>STUDENT LIFE</h2>
-            <p>Annual Symposium: March 28th. Check your institutional portal for invitations.</p>
+            <div class="announcement-box">
+                <p><strong>ANNUAL SYMPOSIUM:</strong> MARCH 28TH</p>
+                <p>Invitations have been dispatched to your institutional portal.</p>
+            </div>
         </section>
     </main>
 
