@@ -1,0 +1,52 @@
+:root {
+    --black: #0a0a0a;
+    --white: #f4f4f4;
+    --accent: #ff4d00;
+}
+
+body {
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    color: var(--black);
+    margin: 0;
+}
+
+.mega-title {
+    font-size: 12vw;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    margin: 2rem 0;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.form-wrapper {
+    max-width: 400px;
+    border-top: 2px solid var(--black);
+    padding-top: 1rem;
+}
+
+input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background: transparent;
+    padding: 1.5rem 0;
+    font-size: 1.2rem;
+    outline: none;
+}
+
+button#submit-btn {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    padding: 1.5rem;
+    width: 100%;
+    margin-top: 2rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button#submit-btn:hover {
+    background: var(--accent);
+}
