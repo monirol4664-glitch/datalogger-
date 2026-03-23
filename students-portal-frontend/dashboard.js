@@ -21,29 +21,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function fetchPortalData() {
+    const studentId = localStorage.getItem('student_id');
+
     try {
-        // Parallel fetch for speed
+        // Send the ID as a "query parameter" (?id=1)
         const [courseRes, researchRes] = await Promise.all([
-            fetch(`${WORKER_URL}/api/courses`),
-            fetch(`${WORKER_URL}/api/research`)
+            fetch(`${WORKER_URL}/api/courses?id=${studentId}`),
+            fetch(`${WORKER_URL}/api/research?id=${studentId}`)
         ]);
 
         const courses = await courseRes.json();
         const research = await researchRes.json();
 
-        // Render Courses
+        // Render logic remains the same...
         const courseGrid = document.getElementById('course-grid');
-        courseGrid.innerHTML = courses.map(c => `
-            <li>${c.course_code}: ${c.course_name.toUpperCase()} — ${c.grade}</li>
-        `).join('');
+        courseGrid.innerHTML = courses.length > 0 
+            ? courses.map(c => `<li>${c.course_code}: ${c.course_name.toUpperCase()} — ${c.grade}</li>`).join('')
+            : `<li>NO COURSES ENROLLED</li>`;
 
-        // Render Research
         const researchList = document.getElementById('research-list');
-        researchList.innerHTML = research.map((r, i) => `
-            <div class="item">
-                <span>0${i + 1}</span> ${r.title.toUpperCase()} — [${r.status}]
-            </div>
-        `).join('');
+        researchList.innerHTML = research.length > 0
+            ? research.map((r, i) => `<div class="item"><span>0${i + 1}</span> ${r.title.toUpperCase()} — [${r.status}]</div>`).join('')
+            : `<div class="item">NO ACTIVE RESEARCH</div>`;
 
     } catch (err) {
         console.error("Data sync failed:", err);
