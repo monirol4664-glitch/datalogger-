@@ -1,5 +1,5 @@
 // CONFIGURATION
-const WORKER_URL = "https://your-worker-name.subdomain.workers.dev";
+const WORKER_URL = "https://lively-field-f91e.monirol4664.workers.dev";
 
 // 1. TAB SWITCHING LOGIC
 function switchTab(mode) {
