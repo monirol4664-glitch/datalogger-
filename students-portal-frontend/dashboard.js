@@ -1,29 +1,57 @@
+// CONFIGURATION
+const WORKER_URL = "https://lively-field-f91e.monirol4664.workers.dev";
+
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. LINK CHECK: Did app.js save our session?
+    const studentId = localStorage.getItem('student_id');
     const studentName = localStorage.getItem('student_name');
-    if (studentName) {
-        document.getElementById('student-name').textContent = studentName.toUpperCase();
+
+    if (!studentId) {
+        // Kick back to login if no ID is found
+        window.location.href = 'index.html';
+        return;
     }
 
-    // Load Courses
-    const courseRes = await fetch(`${WORKER_URL}/api/courses`);
-    const courses = await courseRes.json();
-    const courseList = document.querySelector('.course-grid');
-    courseList.innerHTML = ''; // Clear placeholders
+    // 2. UI SYNC
+    document.getElementById('student-name').textContent = studentName.toUpperCase();
+    document.getElementById('user-display').textContent = `ID: NOVA-${studentId.padStart(4, '0')}`;
 
-    courses.forEach(c => {
-        courseList.innerHTML += `<li>${c.course_name.toUpperCase()} — ${c.grade}</li>`;
-    });
-
-    // Load Research
-    const researchRes = await fetch(`${WORKER_URL}/api/research`);
-    const research = await researchRes.json();
-    const researchList = document.getElementById('research-list');
-    researchList.innerHTML = '';
-
-    research.forEach((r, index) => {
-        researchList.innerHTML += `
-            <div class="item">
-                <span>0${index + 1}</span> ${r.title} — [${r.status}]
-            </div>`;
-    });
+    // 3. DATA FETCHING
+    fetchPortalData();
 });
+
+async function fetchPortalData() {
+    try {
+        // Parallel fetch for speed
+        const [courseRes, researchRes] = await Promise.all([
+            fetch(`${WORKER_URL}/api/courses`),
+            fetch(`${WORKER_URL}/api/research`)
+        ]);
+
+        const courses = await courseRes.json();
+        const research = await researchRes.json();
+
+        // Render Courses
+        const courseGrid = document.getElementById('course-grid');
+        courseGrid.innerHTML = courses.map(c => `
+            <li>${c.course_code}: ${c.course_name.toUpperCase()} — ${c.grade}</li>
+        `).join('');
+
+        // Render Research
+        const researchList = document.getElementById('research-list');
+        researchList.innerHTML = research.map((r, i) => `
+            <div class="item">
+                <span>0${i + 1}</span> ${r.title.toUpperCase()} — [${r.status}]
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error("Data sync failed:", err);
+    }
+}
+
+// 4. LOGOUT (Clears the link created by app.js)
+window.logout = function() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+};
