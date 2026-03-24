@@ -2,25 +2,42 @@
 const WORKER_URL = "https://lively-field-f91e.monirol4664.workers.dev";
 
 // 1. TAB SWITCHING LOGIC
-function switchTab(mode) {
+window.switchTab = function(mode) {
     const loginForm = document.getElementById('login-form');
     const regForm = document.getElementById('reg-form');
     const loginBtn = document.getElementById('tab-login');
     const regBtn = document.getElementById('tab-reg');
 
-    // Toggle active classes for CSS styling
     if (mode === 'register') {
-        loginForm.style.display = 'none';
-        regForm.style.display = 'block';
+        // Switch Classes for Animation
+        loginForm.classList.remove('form-active');
+        loginForm.classList.add('form-hidden');
+        
+        // Wait a tiny bit to show the next one for a "layered" effect
+        setTimeout(() => {
+            regForm.style.display = 'block'; // Ensure it exists in DOM
+            regForm.classList.remove('form-hidden');
+            regForm.classList.add('form-active');
+            loginForm.style.display = 'none';
+        }, 200);
+
         regBtn.classList.add('active');
         loginBtn.classList.remove('active');
     } else {
-        loginForm.style.display = 'block';
-        regForm.style.display = 'none';
+        regForm.classList.remove('form-active');
+        regForm.classList.add('form-hidden');
+        
+        setTimeout(() => {
+            loginForm.style.display = 'block';
+            loginForm.classList.remove('form-hidden');
+            loginForm.classList.add('form-active');
+            regForm.style.display = 'none';
+        }, 200);
+
         loginBtn.classList.add('active');
         regBtn.classList.remove('active');
     }
-}
+};
 
 // 2. LOGIN HANDLER
 document.getElementById('login-form').addEventListener('submit', async (e) => {
