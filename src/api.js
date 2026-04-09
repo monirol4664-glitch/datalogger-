@@ -1,5 +1,5 @@
 // Replace with your Worker URL after deployment
-const WORKER_URL = 'https://your-worker-name.your-subdomain.workers.dev';
+const WORKER_URL = 'https://icy-cherry-b7d7.monirol4664.workers.dev';
 
 let adminToken = localStorage.getItem('adminToken');
 
