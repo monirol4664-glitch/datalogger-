@@ -33,7 +33,7 @@ function ProjectCard({ project }) {
         <h3 className="text-xl font-semibold mb-2 group-hover:text-purple-500 transition-colors">
           {project.title}
         </h3>
-        <p className="text-gray-400 mb-4 line-clamp-2">{project.description}</p>
+        <p className="text-gray-400 mb-4">{project.description}</p>
         
         {project.technologies && (
           <div className="flex flex-wrap gap-2">

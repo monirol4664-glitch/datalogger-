@@ -4,7 +4,9 @@ import Hero from './components/Hero';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import { fetchProfile, fetchProjects, fetchSocialLinks } from './api';
+
+// Replace with your Worker URL after deployment
+const API_URL = 'https://your-worker.workers.dev';
 
 function App() {
   const [profile, setProfile] = useState(null);
@@ -15,14 +17,15 @@ function App() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [profileData, projectsData, socialData] = await Promise.all([
-          fetchProfile(),
-          fetchProjects(),
-          fetchSocialLinks()
+        const [profileRes, projectsRes, socialRes] = await Promise.all([
+          fetch(`${API_URL}/api/profile`),
+          fetch(`${API_URL}/api/projects`),
+          fetch(`${API_URL}/api/social-links`)
         ]);
-        setProfile(profileData);
-        setProjects(projectsData);
-        setSocialLinks(socialData);
+        
+        setProfile(await profileRes.json());
+        setProjects(await projectsRes.json());
+        setSocialLinks(await socialRes.json());
       } catch (error) {
         console.error('Failed to load data:', error);
       } finally {

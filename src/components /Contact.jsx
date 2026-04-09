@@ -7,8 +7,7 @@ function Contact({ socialLinks, profile }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('sending');
-    
-    // You can add a contact form endpoint in worker.js later
+    // Add your contact endpoint later if needed
     setTimeout(() => {
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
@@ -16,7 +15,7 @@ function Contact({ socialLinks, profile }) {
     }, 1000);
   };
 
-  const iconMap = {
+  const icons = {
     github: '🐙',
     linkedin: '🔗',
     twitter: '🐦',
@@ -33,31 +32,29 @@ function Contact({ socialLinks, profile }) {
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-6">
-            <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-              <h3 className="text-2xl font-semibold mb-4">Contact Info</h3>
-              {profile?.email && (
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">📧</span>
-                  <a href={`mailto:${profile.email}`} className="text-gray-400 hover:text-purple-500 transition-colors">
-                    {profile.email}
-                  </a>
-                </div>
-              )}
-              
-              <div className="flex gap-4 mt-6">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.platform}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-gray-800 hover:bg-purple-600 flex items-center justify-center text-xl transition-all duration-200 transform hover:scale-110"
-                  >
-                    {iconMap[link.platform] || '🔗'}
-                  </a>
-                ))}
+          <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
+            <h3 className="text-2xl font-semibold mb-4">Contact Info</h3>
+            {profile?.email && (
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📧</span>
+                <a href={`mailto:${profile.email}`} className="text-gray-400 hover:text-purple-500">
+                  {profile.email}
+                </a>
               </div>
+            )}
+            
+            <div className="flex gap-4 mt-6">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-800 hover:bg-purple-600 flex items-center justify-center text-xl transition-all"
+                >
+                  {icons[link.platform] || '🔗'}
+                </a>
+              ))}
             </div>
           </div>
 
@@ -68,7 +65,7 @@ function Contact({ socialLinks, profile }) {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500"
             />
             <input
               type="email"
@@ -76,7 +73,7 @@ function Contact({ socialLinks, profile }) {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500"
             />
             <textarea
               rows="5"
@@ -84,17 +81,17 @@ function Contact({ socialLinks, profile }) {
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               required
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500 transition-colors resize-none"
+              className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500 resize-none"
             ></textarea>
             <button
               type="submit"
               disabled={status === 'sending'}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-all disabled:opacity-50"
             >
               {status === 'sending' ? 'Sending...' : 'Send Message →'}
             </button>
             {status === 'success' && (
-              <p className="text-green-500 text-center animate-fade-in">Message sent successfully!</p>
+              <p className="text-green-500 text-center">Message sent!</p>
             )}
           </form>
         </div>

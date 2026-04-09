@@ -9,7 +9,7 @@ function Projects({ projects }) {
           My <span className="text-purple-500">Projects</span>
         </h2>
         <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-          Here are some of my recent works. Each project is built with passion and modern technologies.
+          Here are some of my recent works.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
