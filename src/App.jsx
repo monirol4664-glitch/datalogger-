@@ -6,7 +6,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 
 // Replace with your Worker URL after deployment
-const API_URL = 'https://your-worker.workers.dev';
+const API_URL = 'https://icy-cherry-b7d7.monirol4664.workers.dev';
 
 function App() {
   const [profile, setProfile] = useState(null);
