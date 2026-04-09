@@ -8,6 +8,8 @@ import Footer from './components/Footer';
 // Replace with your Worker URL after deployment
 const API_URL = 'https://icy-cherry-b7d7.monirol4664.workers.dev';
 
+
+
 function App() {
   const [profile, setProfile] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -47,7 +49,8 @@ function App() {
     <div className="min-h-screen bg-gray-950 text-gray-100">
       <Navbar />
       <Hero profile={profile} />
-      <Projects projects={projects} />
+      {/* Pass apiBaseUrl to Projects */}
+      <Projects projects={projects} apiBaseUrl={API_URL} />
       <Contact socialLinks={socialLinks} profile={profile} />
       <Footer />
     </div>

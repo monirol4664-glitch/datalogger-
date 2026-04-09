@@ -1,7 +1,7 @@
 import React from 'react';
 import ProjectCard from './ProjectCard';
 
-function Projects({ projects }) {
+function Projects({ projects, apiBaseUrl }) {  // ← Add apiBaseUrl prop
   return (
     <section id="projects" className="py-20 bg-gray-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +14,11 @@ function Projects({ projects }) {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              apiBaseUrl={apiBaseUrl}  // ← Pass apiBaseUrl to ProjectCard
+            />
           ))}
         </div>
       </div>
