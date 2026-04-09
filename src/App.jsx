@@ -14,6 +14,52 @@ import {
   Zap,
   Heart
 } from 'lucide-react'
+// Add near top
+import AdminPanel from './AdminPanel';
+const API_URL = '';
+// Add state
+const [isAdmin, setIsAdmin] = useState(false);
+const [adminToken, setAdminToken] = useState(null);
+
+// Add login form component
+const AdminLogin = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    
+    const handleLogin = async () => {
+        const res = await fetch(`${API_URL}/api/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.token) {
+            setAdminToken(data.token);
+            setIsAdmin(true);
+            localStorage.setItem('adminToken', data.token);
+        }
+    };
+    
+    return (
+        <div className="admin-login">
+            <h2>Admin Login</h2>
+            <input type="text" placeholder="Username" onChange={e => setUsername(e.target.value)} />
+            <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+            <button onClick={handleLogin}>Login</button>
+        </div>
+    );
+};
+
+// Add route in App return
+{isAdmin ? (
+    <AdminPanel token={adminToken} onLogout={() => { setIsAdmin(false); localStorage.removeItem('adminToken'); }} />
+) : (
+    // Your existing portfolio UI
+    <>
+        {/* Your current portfolio JSX */}
+        <button onClick={() => setIsAdmin(true)} className="admin-link">Admin</button>
+    </>
+)}
 
 function App() {
   const [copied, setCopied] = useState(false)
