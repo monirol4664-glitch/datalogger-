@@ -7,7 +7,6 @@ function Contact({ socialLinks, profile }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('sending');
-    // Add your contact endpoint later if needed
     setTimeout(() => {
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
