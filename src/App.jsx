@@ -11,7 +11,7 @@ function App() {
   const [error, setError] = useState(null);
 
   // Replace with your actual Worker URL
-  const WORKER_URL = 'https://your-worker-name.your-subdomain.workers.dev';
+  const WORKER_URL = 'https://icy-cherry-b7d7.monirol4664.workers.dev';
 
   // Test if worker is reachable
   useEffect(() => {
