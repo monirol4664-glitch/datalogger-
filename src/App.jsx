@@ -1,356 +1,194 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, X, Sun, Moon, LogIn, LogOut, Github, Linkedin, Mail, Twitter } from 'lucide-react';
-
-// IMPORTANT: Replace this with your Worker URL after deploying
-const WORKER_URL = 'https://icy-cherry-b7d7.monirol4664.workers.dev';
 
 function App() {
   const [projects, setProjects] = useState([]);
   const [skills, setSkills] = useState([]);
   const [contact, setContact] = useState({});
-  const [activeTab, setActiveTab] = useState('portfolio');
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showProjectForm, setShowProjectForm] = useState(false);
-  const [showSkillForm, setShowSkillForm] = useState(false);
-  const [editingProject, setEditingProject] = useState(null);
-  const [editingSkill, setEditingSkill] = useState(null);
+  const [activeTab, setActiveTab] = useState('portfolio');
   const [darkMode, setDarkMode] = useState(false);
-  const [loginData, setLoginData] = useState({ username: 'admin', password: 'admin123' });
   const [loading, setLoading] = useState(true);
-  
-  const [projectForm, setProjectForm] = useState({
-    title: '', description: '', tech_stack: '', year: '', thumbnail_url: '', live_url: ''
-  });
-  
-  const [skillForm, setSkillForm] = useState({
-    name: '', category: 'frontend', proficiency: 50
-  });
+  const [error, setError] = useState(null);
 
-  // Load all data
-  const loadProjects = async () => {
-    try {
-      const res = await fetch(`${WORKER_URL}/api/projects`);
-      const data = await res.json();
-      setProjects(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error loading projects:', error);
-      setProjects([]);
-    }
-  };
+  // Replace with your actual Worker URL
+  const WORKER_URL = 'https://your-worker-name.your-subdomain.workers.dev';
 
-  const loadSkills = async () => {
-    try {
-      const res = await fetch(`${WORKER_URL}/api/skills`);
-      const data = await res.json();
-      setSkills(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error loading skills:', error);
-      setSkills([]);
-    }
-  };
-
-  const loadContact = async () => {
-    try {
-      const res = await fetch(`${WORKER_URL}/api/contact`);
-      const data = await res.json();
-      setContact(data || {});
-    } catch (error) {
-      console.error('Error loading contact:', error);
-      setContact({});
-    }
-  };
-
+  // Test if worker is reachable
   useEffect(() => {
-    Promise.all([loadProjects(), loadSkills(), loadContact()]).finally(() => setLoading(false));
-  }, []);
-
-  // Toggle theme
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [darkMode]);
-
-  // Project CRUD
-  const handleSaveProject = async () => {
-    const techArray = projectForm.tech_stack.split(',').map(t => t.trim());
-    const payload = {
-      ...projectForm,
-      tech_stack: JSON.stringify(techArray),
-      id: editingProject?.id,
-      featured: 0,
-      display_order: projects.length
+    const testConnection = async () => {
+      try {
+        console.log('Testing connection to:', WORKER_URL);
+        const response = await fetch(`${WORKER_URL}/api/projects`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Connected! Projects:', data);
+          setProjects(Array.isArray(data) ? data : []);
+        } else {
+          console.log('Using mock data - Worker not ready');
+          // Mock data for testing
+          setProjects([
+            { id: 1, title: "Sample Project 1", description: "This is a sample project", tech_stack: '["React","CSS"]', thumbnail_url: "https://picsum.photos/400/300?random=1", live_url: "#" },
+            { id: 2, title: "Sample Project 2", description: "Another sample project", tech_stack: '["Node.js","Express"]', thumbnail_url: "https://picsum.photos/400/300?random=2", live_url: "#" }
+          ]);
+          setSkills([
+            { id: 1, name: "React", category: "frontend", proficiency: 90 },
+            { id: 2, name: "Node.js", category: "backend", proficiency: 85 }
+          ]);
+          setContact({ email: "test@example.com", github: "https://github.com", linkedin: "https://linkedin.com" });
+        }
+      } catch (err) {
+        console.error('Connection error:', err);
+        // Mock data for testing
+        setProjects([
+          { id: 1, title: "Sample Project 1", description: "This is a sample project", tech_stack: '["React","CSS"]', thumbnail_url: "https://picsum.photos/400/300?random=1", live_url: "#" }
+        ]);
+        setSkills([
+          { id: 1, name: "React", category: "frontend", proficiency: 90 }
+        ]);
+        setContact({ email: "test@example.com" });
+      } finally {
+        setLoading(false);
+      }
     };
     
-    await fetch(`${WORKER_URL}/api/admin/projects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    setShowProjectForm(false);
-    setEditingProject(null);
-    setProjectForm({ title: '', description: '', tech_stack: '', year: '', thumbnail_url: '', live_url: '' });
-    loadProjects();
-  };
-
-  const handleDeleteProject = async (id) => {
-    if (confirm('Delete this project?')) {
-      await fetch(`${WORKER_URL}/api/admin/projects/${id}`, { method: 'DELETE' });
-      loadProjects();
-    }
-  };
-
-  const handleSaveSkill = async () => {
-    const payload = { ...skillForm, id: editingSkill?.id };
-    await fetch(`${WORKER_URL}/api/admin/skills`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    setShowSkillForm(false);
-    setEditingSkill(null);
-    setSkillForm({ name: '', category: 'frontend', proficiency: 50 });
-    loadSkills();
-  };
-
-  const handleDeleteSkill = async (id) => {
-    if (confirm('Delete this skill?')) {
-      await fetch(`${WORKER_URL}/api/admin/skills/${id}`, { method: 'DELETE' });
-      loadSkills();
-    }
-  };
-
-  const handleUpdateContact = async (type, currentValue) => {
-    const newValue = prompt(`Edit ${type}:`, currentValue);
-    if (newValue && newValue !== currentValue) {
-      await fetch(`${WORKER_URL}/api/admin/contact`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, value: newValue })
-      });
-      loadContact();
-    }
-  };
-
-  const handleLogin = async () => {
-    try {
-      const res = await fetch(`${WORKER_URL}/api/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData)
-      });
-      const data = await res.json();
-      if (data.success || data.token) {
-        setIsAdmin(true);
-        setActiveTab('admin');
-        alert('Login successful!');
-      } else {
-        alert('Invalid credentials. Use admin/admin123');
-      }
-    } catch (error) {
-      alert('Cannot connect to server. Make sure Worker is deployed.');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdmin(false);
-    setActiveTab('portfolio');
-  };
+    testConnection();
+  }, []);
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading portfolio...</p>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontFamily: 'sans-serif'
+      }}>
+        <div>
+          <div style={{ 
+            width: '50px', 
+            height: '50px', 
+            border: '4px solid #f3f3f3', 
+            borderTop: '4px solid #667eea', 
+            borderRadius: '50%', 
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto'
+          }}></div>
+          <p style={{ marginTop: '20px' }}>Loading portfolio...</p>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        </div>
       </div>
     );
   }
 
-  // Portfolio View Component
+  // Simple Portfolio View
   const PortfolioView = () => (
-    <div className="portfolio-view">
-      <section className="hero">
-        <h1>My Creative Portfolio</h1>
-        <p>Building amazing digital experiences with modern web technologies</p>
-      </section>
-
-      <section className="projects-section">
-        <h2>Featured Work</h2>
-        {projects.length === 0 ? (
-          <div className="empty-state">No projects yet. Admin can add projects.</div>
-        ) : (
-          <div className="projects-grid">
-            {projects.map(project => (
-              <div key={project.id} className="project-card">
-                {project.thumbnail_url && (
-                  <img src={project.thumbnail_url} alt={project.title} className="project-thumbnail" />
-                )}
-                <h3>{project.title}</h3>
-                <p>{project.description}</p>
-                <div className="tech-stack">
-                  {JSON.parse(project.tech_stack || '[]').map((tech, i) => (
-                    <span key={i} className="tech-badge">{tech}</span>
-                  ))}
-                </div>
-                {project.live_url && (
-                  <a href={project.live_url} target="_blank" rel="noopener noreferrer" className="project-link">
-                    View Project →
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: '20px', marginBottom: '30px' }}>
+        <h1 style={{ fontSize: '48px', marginBottom: '20px', background: 'linear-gradient(135deg, #667eea, #764ba2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          My Portfolio
+        </h1>
+        <p style={{ fontSize: '18px', color: '#666' }}>Welcome to my creative portfolio</p>
+        {!isAdmin && (
+          <button onClick={() => setActiveTab('login')} style={{ marginTop: '20px', padding: '10px 20px', background: '#667eea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+            Admin Login
+          </button>
         )}
-      </section>
+      </div>
 
-      <section className="skills-section">
-        <h2>Skills & Technologies</h2>
-        {skills.length === 0 ? (
-          <div className="empty-state">No skills yet. Admin can add skills.</div>
-        ) : (
-          <div className="skills-grid">
-            {skills.map(skill => (
-              <div key={skill.id} className="skill-card">
-                <div className="skill-header">
-                  <span className="skill-name">{skill.name}</span>
-                  <span className="skill-category">{skill.category}</span>
-                </div>
-                <div className="skill-bar">
-                  <div className="skill-progress" style={{ width: `${skill.proficiency}%` }}></div>
-                </div>
-                <span className="skill-percentage">{skill.proficiency}%</span>
+      {/* Projects Section */}
+      <div style={{ background: 'white', borderRadius: '20px', padding: '30px', marginBottom: '30px' }}>
+        <h2 style={{ marginBottom: '20px', color: '#667eea' }}>My Projects</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+          {projects.map(project => (
+            <div key={project.id} style={{ background: '#f9f9f9', borderRadius: '12px', padding: '15px', overflow: 'hidden' }}>
+              {project.thumbnail_url && (
+                <img src={project.thumbnail_url} alt={project.title} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px', marginBottom: '15px' }} />
+              )}
+              <h3>{project.title}</h3>
+              <p style={{ color: '#666', margin: '10px 0' }}>{project.description}</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {JSON.parse(project.tech_stack || '[]').map((tech, i) => (
+                  <span key={i} style={{ background: '#e0e7ff', padding: '4px 12px', borderRadius: '20px', fontSize: '12px' }}>{tech}</span>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="contact-section">
-        <h2>Get in Touch</h2>
-        <div className="contact-grid">
-          {Object.keys(contact).length === 0 ? (
-            <div className="empty-state">No contact info yet.</div>
-          ) : (
-            Object.entries(contact).map(([type, value]) => (
-              <div key={type} className="contact-card">
-                {type === 'email' && <Mail size={20} />}
-                {type === 'github' && <Github size={20} />}
-                {type === 'linkedin' && <Linkedin size={20} />}
-                {type === 'twitter' && <Twitter size={20} />}
-                <strong>{type}:</strong>
-                {type === 'email' ? (
-                  <a href={`mailto:${value}`}>{value}</a>
-                ) : (
-                  <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>
-                )}
-              </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
+
+      {/* Skills Section */}
+      <div style={{ background: 'white', borderRadius: '20px', padding: '30px', marginBottom: '30px' }}>
+        <h2 style={{ marginBottom: '20px', color: '#667eea' }}>Skills</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
+          {skills.map(skill => (
+            <div key={skill.id}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span><strong>{skill.name}</strong></span>
+                <span style={{ color: '#667eea' }}>{skill.category}</span>
+              </div>
+              <div style={{ background: '#e0e0e0', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: `${skill.proficiency}%`, height: '100%', background: 'linear-gradient(90deg, #667eea, #764ba2)' }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 
-  // Admin View Component
+  // Simple Login View
+  const LoginView = () => (
+    <div style={{ maxWidth: '400px', margin: '50px auto', background: 'white', padding: '40px', borderRadius: '20px', textAlign: 'center' }}>
+      <h2>Admin Login</h2>
+      <p style={{ margin: '10px 0', color: '#667eea' }}>Use: admin / admin123</p>
+      <input type="text" id="username" placeholder="Username" defaultValue="admin" style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ddd', borderRadius: '8px' }} />
+      <input type="password" id="password" placeholder="Password" defaultValue="admin123" style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ddd', borderRadius: '8px' }} />
+      <button onClick={() => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (username === 'admin' && password === 'admin123') {
+          setIsAdmin(true);
+          setActiveTab('admin');
+        } else {
+          alert('Invalid credentials');
+        }
+      }} style={{ width: '100%', padding: '12px', background: '#667eea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', marginTop: '10px' }}>
+        Login
+      </button>
+    </div>
+  );
+
+  // Simple Admin View
   const AdminView = () => (
-    <div className="admin-view">
-      <div className="admin-header">
-        <h2>Admin Dashboard</h2>
-        <button className="btn-logout" onClick={handleLogout}>
-          <LogOut size={18} /> Logout
-        </button>
-      </div>
-
-      <div className="admin-stats">
-        <div className="stat-card">
-          <h3>{projects.length}</h3>
-          <p>Projects</p>
-        </div>
-        <div className="stat-card">
-          <h3>{skills.length}</h3>
-          <p>Skills</p>
-        </div>
-        <div className="stat-card">
-          <h3>{Object.keys(contact).length}</h3>
-          <p>Contact Items</p>
-        </div>
-      </div>
-
-      <div className="admin-section">
-        <div className="section-header">
-          <h3>📁 Manage Projects</h3>
-          <button className="btn-primary" onClick={() => { setEditingProject(null); setProjectForm({ title: '', description: '', tech_stack: '', year: '', thumbnail_url: '', live_url: '' }); setShowProjectForm(true); }}>
-            <Plus size={18} /> Add Project
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ background: 'white', borderRadius: '20px', padding: '30px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', paddingBottom: '20px', borderBottom: '2px solid #f0f0f0' }}>
+          <h2>Admin Dashboard</h2>
+          <button onClick={() => { setIsAdmin(false); setActiveTab('portfolio'); }} style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+            Logout
           </button>
         </div>
-        <div className="admin-list">
-          {projects.map(project => (
-            <div key={project.id} className="admin-item">
-              {project.thumbnail_url && <img src={project.thumbnail_url} alt={project.title} className="admin-thumb" />}
-              <div className="admin-info">
-                <strong>{project.title}</strong>
-                <p>{project.description.substring(0, 80)}...</p>
-              </div>
-              <div className="admin-actions">
-                <button className="btn-icon" onClick={() => { setEditingProject(project); setProjectForm({ ...project, tech_stack: JSON.parse(project.tech_stack || '[]').join(', ') }); setShowProjectForm(true); }}>
-                  <Edit2 size={16} />
-                </button>
-                <button className="btn-icon delete" onClick={() => handleDeleteProject(project.id)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+          <div style={{ textAlign: 'center', padding: '20px', background: '#f9f9f9', borderRadius: '12px' }}><h3 style={{ fontSize: '32px', color: '#667eea' }}>{projects.length}</h3><p>Projects</p></div>
+          <div style={{ textAlign: 'center', padding: '20px', background: '#f9f9f9', borderRadius: '12px' }}><h3 style={{ fontSize: '32px', color: '#667eea' }}>{skills.length}</h3><p>Skills</p></div>
+          <div style={{ textAlign: 'center', padding: '20px', background: '#f9f9f9', borderRadius: '12px' }}><h3 style={{ fontSize: '32px', color: '#667eea' }}>{Object.keys(contact).length}</h3><p>Contacts</p></div>
+        </div>
+
+        <div style={{ marginBottom: '30px' }}>
+          <h3>Projects List</h3>
+          {projects.map(p => (
+            <div key={p.id} style={{ padding: '15px', background: '#f9f9f9', margin: '10px 0', borderRadius: '8px' }}>
+              <strong>{p.title}</strong> - {p.description}
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="admin-section">
-        <div className="section-header">
-          <h3>⚡ Manage Skills</h3>
-          <button className="btn-primary" onClick={() => { setEditingSkill(null); setSkillForm({ name: '', category: 'frontend', proficiency: 50 }); setShowSkillForm(true); }}>
-            <Plus size={18} /> Add Skill
-          </button>
-        </div>
-        <div className="admin-list">
-          {skills.map(skill => (
-            <div key={skill.id} className="admin-item">
-              <div className="admin-info">
-                <strong>{skill.name}</strong>
-                <span className="skill-category-badge">{skill.category}</span>
-                <div className="skill-bar-small">
-                  <div className="skill-progress-small" style={{ width: `${skill.proficiency}%` }}></div>
-                </div>
-              </div>
-              <div className="admin-actions">
-                <button className="btn-icon" onClick={() => { setEditingSkill(skill); setSkillForm({ name: skill.name, category: skill.category, proficiency: skill.proficiency }); setShowSkillForm(true); }}>
-                  <Edit2 size={16} />
-                </button>
-                <button className="btn-icon delete" onClick={() => handleDeleteSkill(skill.id)}>
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="admin-section">
-        <div className="section-header">
-          <h3>📧 Manage Contact</h3>
-        </div>
-        <div className="admin-list">
-          {Object.entries(contact).map(([type, value]) => (
-            <div key={type} className="admin-item">
-              <div className="admin-info">
-                <strong>{type.toUpperCase()}:</strong> {value}
-              </div>
-              <button className="btn-icon" onClick={() => handleUpdateContact(type, value)}>
-                <Edit2 size={16} />
-              </button>
+        <div>
+          <h3>Contact Info</h3>
+          {Object.entries(contact).map(([key, value]) => (
+            <div key={key} style={{ padding: '10px', background: '#f9f9f9', margin: '5px 0', borderRadius: '8px' }}>
+              <strong>{key}:</strong> {value}
             </div>
           ))}
         </div>
@@ -359,112 +197,46 @@ function App() {
   );
 
   return (
-    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
-      <nav className="navbar">
-        <div className="nav-brand">🎨 Portfolio Admin</div>
-        <div className="nav-controls">
-          <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+    <div style={{ 
+      background: darkMode ? '#1a1a2e' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      minHeight: '100vh',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    }}>
+      <nav style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '15px 30px', 
+        background: 'rgba(255,255,255,0.95)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', background: 'linear-gradient(135deg, #667eea, #764ba2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Portfolio
+        </div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button onClick={() => setDarkMode(!darkMode)} style={{ padding: '8px 12px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+            {darkMode ? '☀️' : '🌙'}
           </button>
-          {!isAdmin ? (
-            <>
-              <button onClick={() => setActiveTab('portfolio')} className={activeTab === 'portfolio' ? 'active' : ''}>Portfolio</button>
-              <button onClick={() => setActiveTab('login')} className={activeTab === 'login' ? 'active' : ''}>
-                <LogIn size={16} /> Admin
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setActiveTab('portfolio')} className={activeTab === 'portfolio' ? 'active' : ''}>View Site</button>
-              <button onClick={() => setActiveTab('admin')} className={activeTab === 'admin' ? 'active' : ''}>Dashboard</button>
-            </>
+          {!isAdmin && activeTab !== 'login' && (
+            <button onClick={() => setActiveTab('login')} style={{ padding: '8px 16px', background: '#667eea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+              Admin
+            </button>
+          )}
+          {isAdmin && (
+            <button onClick={() => setActiveTab('portfolio')} style={{ padding: '8px 16px', background: '#667eea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+              View Site
+            </button>
           )}
         </div>
       </nav>
 
-      <main className="main-content">
+      <main>
         {activeTab === 'portfolio' && <PortfolioView />}
-        
-        {activeTab === 'login' && !isAdmin && (
-          <div className="login-container">
-            <h2>Admin Login</h2>
-            <input 
-              type="text" 
-              placeholder="Username" 
-              value={loginData.username} 
-              onChange={e => setLoginData({ ...loginData, username: e.target.value })}
-              defaultValue="admin"
-            />
-            <input 
-              type="password" 
-              placeholder="Password" 
-              value={loginData.password} 
-              onChange={e => setLoginData({ ...loginData, password: e.target.value })}
-              defaultValue="admin123"
-            />
-            <button className="btn-primary full-width" onClick={handleLogin}>Login</button>
-            <p className="login-hint">Default: admin / admin123</p>
-          </div>
-        )}
-        
+        {activeTab === 'login' && !isAdmin && <LoginView />}
         {activeTab === 'admin' && isAdmin && <AdminView />}
       </main>
-
-      {/* Modals */}
-      {showProjectForm && (
-        <div className="modal-overlay" onClick={() => setShowProjectForm(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingProject ? 'Edit Project' : 'Add Project'}</h3>
-              <button className="modal-close" onClick={() => setShowProjectForm(false)}><X size={20} /></button>
-            </div>
-            <div className="modal-body">
-              <label>Title *</label>
-              <input type="text" placeholder="Project title" value={projectForm.title} onChange={e => setProjectForm({ ...projectForm, title: e.target.value })} />
-              <label>Description *</label>
-              <textarea placeholder="Description" rows="3" value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} />
-              <label>Tech Stack (comma separated)</label>
-              <input type="text" placeholder="React, Tailwind, Node.js" value={projectForm.tech_stack} onChange={e => setProjectForm({ ...projectForm, tech_stack: e.target.value })} />
-              <label>Thumbnail URL</label>
-              <input type="text" placeholder="https://example.com/image.jpg" value={projectForm.thumbnail_url} onChange={e => setProjectForm({ ...projectForm, thumbnail_url: e.target.value })} />
-              <label>Live URL</label>
-              <input type="text" placeholder="https://yourproject.com" value={projectForm.live_url} onChange={e => setProjectForm({ ...projectForm, live_url: e.target.value })} />
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowProjectForm(false)}>Cancel</button>
-              <button className="btn-primary" onClick={handleSaveProject}><Save size={16} /> Save</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showSkillForm && (
-        <div className="modal-overlay" onClick={() => setShowSkillForm(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingSkill ? 'Edit Skill' : 'Add Skill'}</h3>
-              <button className="modal-close" onClick={() => setShowSkillForm(false)}><X size={20} /></button>
-            </div>
-            <div className="modal-body">
-              <label>Skill Name *</label>
-              <input type="text" placeholder="React, Node.js, etc" value={skillForm.name} onChange={e => setSkillForm({ ...skillForm, name: e.target.value })} />
-              <label>Category</label>
-              <select value={skillForm.category} onChange={e => setSkillForm({ ...skillForm, category: e.target.value })}>
-                <option value="frontend">Frontend</option>
-                <option value="backend">Backend</option>
-                <option value="tools">Tools</option>
-                <option value="design">Design</option>
-              </select>
-              <label>Proficiency: {skillForm.proficiency}%</label>
-              <input type="range" min="0" max="100" value={skillForm.proficiency} onChange={e => setSkillForm({ ...skillForm, proficiency: parseInt(e.target.value) })} />
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowSkillForm(false)}>Cancel</button>
-              <button className="btn-primary" onClick={handleSaveSkill}><Save size={16} /> Save</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
