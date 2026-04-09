@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Save, X, Image as ImageIcon } from 'lucide-react';
 
-const API_URL = 'https://your-worker.workers.dev'; // Replace with your worker URL
+const API_URL = ''; // Replace with your worker URL
 
 function AdminPanel({ token, onLogout }) {
     const [projects, setProjects] = useState([]);
