@@ -11,7 +11,12 @@ const Navbar = () => {
   const [isAdmin, setIsAdmin] = useState(false)
   
   useEffect(() => {
-    setIsAdmin(localStorage.getItem('adminToken') === 'true')
+    const checkAdmin = () => {
+      setIsAdmin(localStorage.getItem('adminToken') === 'true')
+    }
+    checkAdmin()
+    window.addEventListener('storage', checkAdmin)
+    return () => window.removeEventListener('storage', checkAdmin)
   }, [])
   
   return (
@@ -60,19 +65,19 @@ const HomePage = () => {
       setContent(res.data)
     } catch (error) {
       console.error('Error fetching content:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
   const fetchProfileImage = async () => {
     try {
       const res = await axios.get(`${API_BASE}/api/profile-image`)
-      if (res.data.imageUrl) {
+      if (res.data && res.data.imageUrl) {
         setProfileImage(res.data.imageUrl)
       }
     } catch (error) {
       console.error('Error fetching profile image:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -89,9 +94,17 @@ const HomePage = () => {
       <div className="max-w-7xl mx-auto space-y-12 animate-fade-in">
         {/* Hero Section */}
         <div className="glass-card p-8 flex flex-col md:flex-row items-center gap-8">
-          {profileImage && (
-            <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-purple-500 shadow-xl">
-              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+          {profileImage && profileImage.startsWith('data:') && (
+            <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-purple-500 shadow-xl flex-shrink-0">
+              <img 
+                src={profileImage} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.error('Image failed to load:', profileImage)
+                  e.target.style.display = 'none'
+                }}
+              />
             </div>
           )}
           <div className="flex-1 text-center md:text-left">
@@ -301,7 +314,7 @@ const AdminLogin = ({ onLogin }) => {
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
             required
           />
           <input
@@ -309,7 +322,7 @@ const AdminLogin = ({ onLogin }) => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
             required
           />
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -352,7 +365,9 @@ const AdminPanel = () => {
       setContent(contentRes.data)
       setWorks(worksRes.data)
       setSocialLinks(socialRes.data)
-      if (imageRes.data.imageUrl) setProfileImage(imageRes.data.imageUrl)
+      if (imageRes.data && imageRes.data.imageUrl) {
+        setProfileImage(imageRes.data.imageUrl)
+      }
     } catch (error) {
       console.error('Error fetching data:', error)
     }
@@ -380,7 +395,12 @@ const AdminPanel = () => {
           mimeType: file.type
         })
         setMessage('Profile image updated!')
-        fetchAllData()
+        setTimeout(() => setMessage(''), 3000)
+        // Refresh image
+        const imageRes = await axios.get(`${API_BASE}/api/profile-image`)
+        if (imageRes.data && imageRes.data.imageUrl) {
+          setProfileImage(imageRes.data.imageUrl)
+        }
       } catch (error) {
         setMessage('Error uploading image')
       }
@@ -395,6 +415,11 @@ const AdminPanel = () => {
   const updateWork = (idx, field, value) => {
     const updated = [...works]
     updated[idx][field] = value
+    setWorks(updated)
+  }
+
+  const deleteWork = (idx) => {
+    const updated = works.filter((_, i) => i !== idx)
     setWorks(updated)
   }
 
@@ -415,6 +440,11 @@ const AdminPanel = () => {
   const updateSocialLink = (idx, field, value) => {
     const updated = [...socialLinks]
     updated[idx][field] = value
+    setSocialLinks(updated)
+  }
+
+  const deleteSocialLink = (idx) => {
+    const updated = socialLinks.filter((_, i) => i !== idx)
     setSocialLinks(updated)
   }
 
@@ -454,46 +484,71 @@ const AdminPanel = () => {
         <div className="glass-card p-8">
           {activeTab === 'basic' && (
             <div className="space-y-6">
-              <input
-                type="text"
-                placeholder="Name"
-                value={content.name || ''}
-                onChange={(e) => setContent({...content, name: e.target.value})}
-                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg"
-              />
-              <input
-                type="text"
-                placeholder="Title"
-                value={content.title || ''}
-                onChange={(e) => setContent({...content, title: e.target.value})}
-                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg"
-              />
-              <textarea
-                placeholder="Bio"
-                value={content.bio || ''}
-                onChange={(e) => setContent({...content, bio: e.target.value})}
-                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg"
-                rows="4"
-              />
               <div>
-                <h3 className="font-semibold mb-2">Education (JSON format)</h3>
-                <textarea
-                  value={JSON.stringify(content.education || [], null, 2)}
-                  onChange={(e) => setContent({...content, education: JSON.parse(e.target.value)})}
-                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg font-mono text-sm"
-                  rows="6"
+                <label className="block text-sm font-medium mb-2">Name</label>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={content.name || ''}
+                  onChange={(e) => setContent({...content, name: e.target.value})}
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
                 />
               </div>
               <div>
-                <h3 className="font-semibold mb-2">Expertise (JSON array)</h3>
+                <label className="block text-sm font-medium mb-2">Title</label>
+                <input
+                  type="text"
+                  placeholder="Title"
+                  value={content.title || ''}
+                  onChange={(e) => setContent({...content, title: e.target.value})}
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Bio</label>
                 <textarea
-                  value={JSON.stringify(content.expertise || [], null, 2)}
-                  onChange={(e) => setContent({...content, expertise: JSON.parse(e.target.value)})}
-                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg font-mono text-sm"
+                  placeholder="Bio"
+                  value={content.bio || ''}
+                  onChange={(e) => setContent({...content, bio: e.target.value})}
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
                   rows="4"
                 />
               </div>
-              <button onClick={handleContentUpdate} className="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700">
+              <div>
+                <label className="block text-sm font-medium mb-2">Education (JSON format)</label>
+                <textarea
+                  value={JSON.stringify(content.education || [], null, 2)}
+                  onChange={(e) => {
+                    try {
+                      const parsed = JSON.parse(e.target.value)
+                      setContent({...content, education: parsed})
+                    } catch (err) {
+                      // Invalid JSON, don't update
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg font-mono text-sm text-white"
+                  rows="6"
+                />
+                <p className="text-xs text-gray-400 mt-1">Example: [{"degree":"BSc CS","institution":"University","year":"2020-2024"}]</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Expertise (JSON array)</label>
+                <textarea
+                  value={JSON.stringify(content.expertise || [], null, 2)}
+                  onChange={(e) => {
+                    try {
+                      const parsed = JSON.parse(e.target.value)
+                      setContent({...content, expertise: parsed})
+                    } catch (err) {
+                      // Invalid JSON, don't update
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg font-mono text-sm text-white"
+                  rows="4"
+                />
+                <p className="text-xs text-gray-400 mt-1">Example: ["React", "Node.js", "Python"]</p>
+              </div>
+              <button onClick={handleContentUpdate} className="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition">
                 Save Content
               </button>
             </div>
@@ -502,29 +557,35 @@ const AdminPanel = () => {
           {activeTab === 'works' && (
             <div className="space-y-6">
               {works.map((work, idx) => (
-                <div key={idx} className="border border-gray-700 rounded-lg p-4 space-y-3">
+                <div key={idx} className="border border-gray-700 rounded-lg p-4 space-y-3 relative">
+                  <button
+                    onClick={() => deleteWork(idx)}
+                    className="absolute top-2 right-2 text-red-500 hover:text-red-400"
+                  >
+                    ✕
+                  </button>
                   <input
                     placeholder="Title"
                     value={work.title}
                     onChange={(e) => updateWork(idx, 'title', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   />
                   <input
                     placeholder="Description"
                     value={work.description}
                     onChange={(e) => updateWork(idx, 'description', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   />
                   <input
                     placeholder="URL (YouTube or Website)"
                     value={work.url}
                     onChange={(e) => updateWork(idx, 'url', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   />
                   <select
                     value={work.type}
                     onChange={(e) => updateWork(idx, 'type', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   >
                     <option value="website">Website</option>
                     <option value="youtube">YouTube Video</option>
@@ -534,14 +595,14 @@ const AdminPanel = () => {
                       placeholder="Thumbnail URL"
                       value={work.thumbnail}
                       onChange={(e) => updateWork(idx, 'thumbnail', e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                      className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                     />
                   )}
                 </div>
               ))}
               <div className="flex gap-4">
-                <button onClick={addWork} className="px-4 py-2 bg-green-600 rounded-lg">+ Add Work</button>
-                <button onClick={saveWorks} className="px-4 py-2 bg-purple-600 rounded-lg">Save All Works</button>
+                <button onClick={addWork} className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition">+ Add Work</button>
+                <button onClick={saveWorks} className="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition">Save All Works</button>
               </div>
             </div>
           )}
@@ -549,46 +610,52 @@ const AdminPanel = () => {
           {activeTab === 'social' && (
             <div className="space-y-6">
               {socialLinks.map((link, idx) => (
-                <div key={idx} className="border border-gray-700 rounded-lg p-4 space-y-3">
+                <div key={idx} className="border border-gray-700 rounded-lg p-4 space-y-3 relative">
+                  <button
+                    onClick={() => deleteSocialLink(idx)}
+                    className="absolute top-2 right-2 text-red-500 hover:text-red-400"
+                  >
+                    ✕
+                  </button>
                   <input
                     placeholder="Platform (e.g., GitHub)"
                     value={link.platform}
                     onChange={(e) => updateSocialLink(idx, 'platform', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   />
                   <input
                     placeholder="URL"
                     value={link.url}
                     onChange={(e) => updateSocialLink(idx, 'url', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   />
                   <input
                     placeholder="Icon (emoji or text)"
                     value={link.icon}
                     onChange={(e) => updateSocialLink(idx, 'icon', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800/50 rounded"
+                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded text-white"
                   />
                 </div>
               ))}
               <div className="flex gap-4">
-                <button onClick={addSocialLink} className="px-4 py-2 bg-green-600 rounded-lg">+ Add Social Link</button>
-                <button onClick={saveSocialLinks} className="px-4 py-2 bg-purple-600 rounded-lg">Save Social Links</button>
+                <button onClick={addSocialLink} className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700 transition">+ Add Social Link</button>
+                <button onClick={saveSocialLinks} className="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition">Save Social Links</button>
               </div>
             </div>
           )}
 
           {activeTab === 'image' && (
             <div className="space-y-6 text-center">
-              {profileImage && (
+              {profileImage && profileImage.startsWith('data:') && (
                 <div className="mb-4">
-                  <img src={profileImage} alt="Profile" className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500" />
+                  <img src={profileImage} alt="Profile" className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover" />
                 </div>
               )}
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg cursor-pointer"
+                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg cursor-pointer text-white"
               />
               <p className="text-sm text-gray-400">Image will be stored as BLOB in D1 and served as RFC 2397 data URL</p>
             </div>
@@ -609,6 +676,11 @@ function App() {
       setIsAdminLoggedIn(true)
     }
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken')
+    setIsAdminLoggedIn(false)
+  }
 
   return (
     <Router>
