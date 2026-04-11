@@ -4,22 +4,6 @@ import axios from 'axios'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
-// Custom Cursor
-const CustomCursor = () => {
-  const [pos, setPos] = useState({ x: 0, y: 0 })
-  const [hover, setHover] = useState(false)
-  useEffect(() => {
-    const move = (e) => setPos({ x: e.clientX, y: e.clientY })
-    const over = (e) => { if (e.target.closest('a, button, .hover-glow')) setHover(true) }
-    const out = () => setHover(false)
-    window.addEventListener('mousemove', move)
-    window.addEventListener('mouseover', over)
-    window.addEventListener('mouseout', out)
-    return () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseover', over); window.removeEventListener('mouseout', out) }
-  }, [])
-  return <div className={`fixed pointer-events-none z-50 rounded-full mix-blend-difference transition-all duration-150 ${hover ? 'w-20 h-20 bg-white' : 'w-8 h-8 bg-purple-500'}`} style={{ left: pos.x - 10, top: pos.y - 10 }} />
-}
-
 // Navbar
 const Navbar = () => {
   const location = useLocation()
@@ -75,33 +59,33 @@ const Hero = ({ name, title, imageDataUrl }) => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent" />
       
       <div className="relative z-10 text-center px-8 max-w-5xl mx-auto">
-        {/* LARGE PROFILE IMAGE - 200x200 on mobile, 280x280 on desktop */}
+        {/* LARGE PROFILE IMAGE */}
         {imageDataUrl ? (
-          <div className="group relative w-56 h-56 md:w-72 md:h-72 mx-auto mb-10">
+          <div className="group relative w-56 h-56 md:w-80 md:h-80 mx-auto mb-10">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 animate-pulse opacity-75 blur-xl group-hover:blur-2xl transition-all duration-500" />
             <div className="relative rounded-full overflow-hidden border-4 border-white/30 shadow-2xl group-hover:scale-105 transition-all duration-500 cursor-pointer">
               <img 
                 src={imageDataUrl} 
                 alt="Profile" 
-                className="w-56 h-56 md:w-72 md:h-72 object-cover"
+                className="w-56 h-56 md:w-80 md:h-80 object-cover"
               />
             </div>
           </div>
         ) : (
-          <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto mb-10">
+          <div className="relative w-56 h-56 md:w-80 md:h-80 mx-auto mb-10">
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 animate-pulse opacity-75 blur-xl" />
-            <div className="relative rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center w-56 h-56 md:w-72 md:h-72">
-              <span className="text-7xl md:text-8xl">👤</span>
+            <div className="relative rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center w-56 h-56 md:w-80 md:h-80">
+              <svg className="w-32 h-32 md:w-40 md:h-40 text-white/80" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
             </div>
           </div>
         )}
         
-        {/* Name with animated gradient */}
         <h1 className="text-5xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient">
           {name || 'John Doe'}
         </h1>
         
-        {/* Title with typing animation effect */}
         <p className="text-xl md:text-3xl text-gray-300 tracking-wide max-w-3xl mx-auto">
           {title || 'Creative Developer & Designer'}
         </p>
@@ -124,7 +108,7 @@ const Section = ({ children, title, icon, delay = 0 }) => (
     style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}
   >
     <div className="mb-8 text-center">
-      <span className="text-5xl md:text-6xl">{icon}</span>
+      <div className="text-5xl md:text-6xl text-purple-400">{icon}</div>
       <h2 className="text-3xl md:text-5xl font-bold mt-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{title}</h2>
       <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mt-4 rounded-full" />
     </div>
@@ -177,12 +161,16 @@ const HomePage = () => {
       <div className="max-w-7xl mx-auto px-6 py-24 space-y-32">
         {/* Education & Expertise Grid */}
         <div className="grid md:grid-cols-2 gap-8">
-          <Section title="Education" icon="📚" delay={0.2}>
+          <Section title="Education" icon="🎓" delay={0.2}>
             <div className="space-y-6">
               {content.education?.map((edu, idx) => (
                 <GlassCard key={idx} className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-2xl">🎓</div>
+                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
                     <div>
                       <h3 className="text-xl font-semibold text-purple-400">{edu.degree}</h3>
                       <p className="text-gray-400 mt-1">{edu.institution}</p>
@@ -194,7 +182,7 @@ const HomePage = () => {
             </div>
           </Section>
 
-          <Section title="Expertise" icon="💡" delay={0.3}>
+          <Section title="Expertise" icon="⚡" delay={0.3}>
             <div className="flex flex-wrap gap-4">
               {content.expertise?.map((skill, idx) => (
                 <div key={idx} className="group relative">
@@ -208,8 +196,8 @@ const HomePage = () => {
           </Section>
         </div>
 
-        {/* Bio Section with Parallax Effect */}
-        <Section title="About Me" icon="📝" delay={0.4}>
+        {/* Bio Section */}
+        <Section title="About Me" icon="📖" delay={0.4}>
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur-2xl opacity-0 group-hover:opacity-30 transition duration-500" />
             <GlassCard className="relative p-8 md:p-12">
@@ -224,7 +212,7 @@ const HomePage = () => {
   )
 }
 
-// Works Page - Modern Grid
+// Works Page
 const WorksPage = () => {
   const [works, setWorks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -244,7 +232,7 @@ const WorksPage = () => {
     <div className="bg-black pt-32 pb-24 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-6xl">🚀</span>
+          <div className="text-6xl text-purple-400">🚀</div>
           <h1 className="text-5xl md:text-7xl font-bold mt-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Explore My Works</h1>
           <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mt-6 rounded-full" />
         </div>
@@ -295,7 +283,7 @@ const WorksPage = () => {
   )
 }
 
-// Contact Page - Social Grid
+// Contact Page
 const ContactPage = () => {
   const [links, setLinks] = useState([])
 
@@ -303,10 +291,24 @@ const ContactPage = () => {
     axios.get(`${API_BASE}/api/social-links`).then(res => setLinks(res.data))
   }, [])
 
+  const getIcon = (platform) => {
+    const icons = {
+      'github': '🐙',
+      'twitter': '🐦',
+      'linkedin': '🔗',
+      'facebook': '📘',
+      'instagram': '📷',
+      'youtube': '📺',
+      'tiktok': '🎵',
+      'discord': '🎮',
+    }
+    return icons[platform?.toLowerCase()] || '🔗'
+  }
+
   return (
     <div className="bg-black min-h-screen flex items-center justify-center pt-32 pb-24 px-6">
       <div className="max-w-6xl mx-auto text-center">
-        <span className="text-6xl">🤝</span>
+        <div className="text-6xl text-purple-400">🤝</div>
         <h1 className="text-5xl md:text-7xl font-bold mt-4 mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Let's Connect</h1>
         <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-16 rounded-full" />
         
@@ -321,7 +323,7 @@ const ContactPage = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-0 group-hover:opacity-50 transition duration-500" />
               <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center hover:border-purple-500/50 transition-all duration-300 hover:scale-105">
-                <span className="text-5xl mb-4 block group-hover:animate-bounce">{link.icon || '🔗'}</span>
+                <span className="text-5xl mb-4 block group-hover:animate-bounce">{link.icon || getIcon(link.platform)}</span>
                 <span className="text-lg font-semibold text-gray-300 group-hover:text-purple-400">{link.platform}</span>
               </div>
             </a>
@@ -332,7 +334,7 @@ const ContactPage = () => {
   )
 }
 
-// Admin Login (same as before)
+// Admin Login
 const AdminLogin = ({ onLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -363,7 +365,7 @@ const AdminLogin = ({ onLogin }) => {
   )
 }
 
-// Admin Panel (same as before, keep working)
+// Admin Panel
 const AdminPanel = () => {
   const [tab, setTab] = useState('basic')
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
@@ -492,7 +494,9 @@ const AdminPanel = () => {
                 />
               ) : (
                 <div className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                  <span className="text-4xl">👤</span>
+                  <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
                 </div>
               )}
               <input 
@@ -518,7 +522,6 @@ function App() {
   useEffect(() => setIsAdmin(localStorage.getItem('adminToken') === 'true'), [])
   return (
     <Router>
-      <CustomCursor />
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
