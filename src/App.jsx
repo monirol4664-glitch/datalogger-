@@ -46,11 +46,6 @@ const Navbar = () => {
   )
 }
 
-// Animated section
-const Section = ({ children, delay = 0 }) => (
-  <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}>{children}</div>
-)
-
 // 3D Card
 const Card3D = ({ children }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 })
@@ -70,132 +65,85 @@ const Card3D = ({ children }) => {
   )
 }
 
-// Hero with 3D tilt
-const Hero = ({ name, title, imageUrl, imageError, onImageError }) => {
-  const [rotate, setRotate] = useState({ x: 0, y: 0 })
-  const ref = useRef()
-  const handleMove = (e) => {
-    const rect = ref.current?.getBoundingClientRect()
-    if (rect) {
-      const x = (e.clientX - rect.left) / rect.width - 0.5
-      const y = (e.clientY - rect.top) / rect.height - 0.5
-      setRotate({ x: y * 20, y: x * 20 })
-    }
-  }
-  
-  console.log('Hero rendering with imageUrl:', imageUrl)
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 animate-gradient" />
-      <div className="relative z-10 text-center px-6">
-        <div ref={ref} onMouseMove={handleMove} onMouseLeave={() => setRotate({ x: 0, y: 0 })} style={{ transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)` }} className="transition-transform duration-200">
-          {imageUrl && !imageError ? (
-            <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl hover:scale-105 transition">
-              <img 
-                src={imageUrl} 
-                alt="Profile" 
-                className="w-full h-full object-cover"
-                onError={onImageError}
-              />
-            </div>
-          ) : (
-            <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-4xl">👤</span>
-            </div>
-          )}
-          <h1 className="text-6xl md:text-8xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient">{name || 'John Doe'}</h1>
-          <p className="text-xl md:text-2xl text-gray-300 tracking-wide">{title || 'Creative Developer'}</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // Home Page
 const HomePage = () => {
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
-  const [imageUrl, setImageUrl] = useState(null)
   const [imageError, setImageError] = useState(false)
   const [loading, setLoading] = useState(true)
+  
+  // DIRECT URL - image served as raw binary from Worker
+  const imageUrl = `${API_BASE}/api/profile-image/raw`
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch content
-        const contentRes = await axios.get(`${API_BASE}/api/content`)
-        setContent(contentRes.data)
-        
-        // Set image URL directly (no fetch needed - browser will load it)
-        const url = `${API_BASE}/api/profile-image/raw`
-        console.log('Setting image URL to:', url)
-        setImageUrl(url)
-        
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
+    axios.get(`${API_BASE}/api/content`)
+      .then(res => setContent(res.data))
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [])
-
-  const handleImageError = () => {
-    console.error('Image failed to load:', imageUrl)
-    setImageError(true)
-  }
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-t-2 border-purple-500" /></div>
 
   return (
     <div className="bg-black text-white">
-      <Hero 
-        name={content.name} 
-        title={content.title} 
-        imageUrl={imageUrl}
-        imageError={imageError}
-        onImageError={handleImageError}
-      />
+      {/* Hero Section */}
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 animate-gradient" />
+        <div className="relative z-10 text-center px-6">
+          {!imageError ? (
+            <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl hover:scale-105 transition duration-300">
+              <img 
+                src={imageUrl} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          ) : (
+            <div className="w-40 h-40 mx-auto mb-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <span className="text-4xl">👤</span>
+            </div>
+          )}
+          <h1 className="text-6xl md:text-8xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient">{content.name || 'John Doe'}</h1>
+          <p className="text-xl md:text-2xl text-gray-300 tracking-wide">{content.title || 'Creative Developer'}</p>
+        </div>
+      </div>
+      
+      {/* Content Sections */}
       <div className="max-w-7xl mx-auto px-6 py-24 space-y-32">
         <div className="grid md:grid-cols-2 gap-12">
-          <Section delay={0.2}>
-            <Card3D>
-              <h2 className="text-3xl font-bold mb-8 flex gap-3"><span className="text-4xl">📚</span> Education</h2>
-              {content.education?.map((edu, idx) => (
-                <div key={idx} className="group relative pl-6 border-l-2 border-purple-500 hover:border-purple-300 transition mb-6">
-                  <h3 className="text-xl font-semibold group-hover:text-purple-400">{edu.degree}</h3>
-                  <p className="text-gray-400">{edu.institution}</p>
-                  <p className="text-sm text-gray-500">{edu.year}</p>
-                </div>
-              ))}
-            </Card3D>
-          </Section>
-          <Section delay={0.3}>
-            <Card3D>
-              <h2 className="text-3xl font-bold mb-8 flex gap-3"><span className="text-4xl">💡</span> Expertise</h2>
-              <div className="flex flex-wrap gap-3">
-                {content.expertise?.map((skill, idx) => (
-                  <span key={idx} className="px-4 py-2 bg-purple-500/20 rounded-full text-purple-300 border border-purple-500/30 hover:bg-purple-500/40 hover:scale-105 transition">{skill}</span>
-                ))}
+          <Card3D>
+            <h2 className="text-3xl font-bold mb-8 flex gap-3"><span className="text-4xl">📚</span> Education</h2>
+            {content.education?.map((edu, idx) => (
+              <div key={idx} className="group relative pl-6 border-l-2 border-purple-500 hover:border-purple-300 transition mb-6">
+                <h3 className="text-xl font-semibold group-hover:text-purple-400">{edu.degree}</h3>
+                <p className="text-gray-400">{edu.institution}</p>
+                <p className="text-sm text-gray-500">{edu.year}</p>
               </div>
-            </Card3D>
-          </Section>
-        </div>
-        <Section delay={0.4}>
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition" />
-            <div className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-12">
-              <h2 className="text-3xl font-bold mb-6 text-center">About Me</h2>
-              <p className="text-gray-300 text-center text-lg max-w-3xl mx-auto">{content.bio || 'No bio yet'}</p>
+            ))}
+          </Card3D>
+          <Card3D>
+            <h2 className="text-3xl font-bold mb-8 flex gap-3"><span className="text-4xl">💡</span> Expertise</h2>
+            <div className="flex flex-wrap gap-3">
+              {content.expertise?.map((skill, idx) => (
+                <span key={idx} className="px-4 py-2 bg-purple-500/20 rounded-full text-purple-300 border border-purple-500/30 hover:bg-purple-500/40 hover:scale-105 transition">{skill}</span>
+              ))}
             </div>
+          </Card3D>
+        </div>
+        
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition" />
+          <div className="relative bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-12">
+            <h2 className="text-3xl font-bold mb-6 text-center">About Me</h2>
+            <p className="text-gray-300 text-center text-lg max-w-3xl mx-auto">{content.bio || 'No bio yet'}</p>
           </div>
-        </Section>
+        </div>
       </div>
     </div>
   )
 }
 
-// Works Page (Masonry)
+// Works Page
 const WorksPage = () => {
   const [works, setWorks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -325,7 +273,6 @@ const AdminPanel = () => {
       try {
         await axios.post(`${API_BASE}/api/admin/upload-image`, { imageData: reader.result, mimeType: file.type })
         setMessage('Image uploaded!')
-        // Add cache-busting timestamp
         setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
         setTimeout(() => setMessage(''), 3000)
       } catch (err) {
@@ -360,8 +307,8 @@ const AdminPanel = () => {
               <input type="text" placeholder="Name" value={content.name} onChange={e => setContent({...content, name: e.target.value})} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white" />
               <input type="text" placeholder="Title" value={content.title} onChange={e => setContent({...content, title: e.target.value})} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white" />
               <textarea placeholder="Bio" value={content.bio} onChange={e => setContent({...content, bio: e.target.value})} rows="4" className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white" />
-              <textarea placeholder="Education JSON" value={JSON.stringify(content.education, null, 2)} onChange={e => { try { setContent({...content, education: JSON.parse(e.target.value)}) } catch {} }} rows="6" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
-              <textarea placeholder="Expertise JSON" value={JSON.stringify(content.expertise, null, 2)} onChange={e => { try { setContent({...content, expertise: JSON.parse(e.target.value)}) } catch {} }} rows="4" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
+              <textarea placeholder='Education JSON - Example: [{"degree":"BSc CS","institution":"University","year":"2020"}]' value={JSON.stringify(content.education, null, 2)} onChange={e => { try { setContent({...content, education: JSON.parse(e.target.value)}) } catch {} }} rows="6" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
+              <textarea placeholder='Expertise JSON - Example: ["React", "Node.js"]' value={JSON.stringify(content.expertise, null, 2)} onChange={e => { try { setContent({...content, expertise: JSON.parse(e.target.value)}) } catch {} }} rows="4" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
               <button onClick={updateContent} className="px-6 py-2 bg-purple-600 rounded-lg">Save Content</button>
             </div>
           )}
@@ -395,20 +342,16 @@ const AdminPanel = () => {
           )}
           {tab === 'image' && (
             <div className="space-y-6 text-center">
-              {imageUrl ? (
+              {imageUrl && (
                 <img 
                   src={imageUrl} 
                   alt="Profile" 
                   className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
-                  onError={(e) => { console.error('Admin image failed to load'); e.target.src = ''; e.target.parentElement.innerHTML = '<div class="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="text-4xl">👤</span></div>' }}
+                  onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML += '<div class="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="text-4xl">👤</span></div>' }}
                 />
-              ) : (
-                <div className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                  <span className="text-4xl">👤</span>
-                </div>
               )}
               <input type="file" accept="image/*" onChange={uploadImage} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg cursor-pointer text-white" />
-              <p className="text-sm text-gray-400">Upload a profile picture. Supports JPG, PNG, GIF (up to ~1MB due to D1 limits)</p>
+              <p className="text-sm text-gray-400">Image stored as BLOB in D1, served as raw binary</p>
             </div>
           )}
         </div>
