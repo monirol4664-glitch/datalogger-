@@ -72,7 +72,10 @@ const HomePage = () => {
   const [imageKey, setImageKey] = useState(Date.now())
   const [loading, setLoading] = useState(true)
   
-  const imageUrl = `${API_BASE}/api/profile-image/raw?t=${imageKey}`
+  
+
+// To this:
+const imageUrl = `${API_BASE}/api/image?t=${imageKey}`
 
   useEffect(() => {
     axios.get(`${API_BASE}/api/content`)
@@ -260,7 +263,7 @@ const AdminPanel = () => {
       setContent(c.data)
       setWorks(w.data)
       setSocial(s.data)
-      setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
+      setImageUrl(`${API_BASE}/api/image?t=${Date.now()}`)
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
