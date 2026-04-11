@@ -69,10 +69,10 @@ const Card3D = ({ children }) => {
 const HomePage = () => {
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
   const [imageError, setImageError] = useState(false)
+  const [imageKey, setImageKey] = useState(Date.now())
   const [loading, setLoading] = useState(true)
   
-  // DIRECT URL - image served as raw binary from Worker
-  const imageUrl = `${API_BASE}/api/profile-image/raw`
+  const imageUrl = `${API_BASE}/api/profile-image/raw?t=${imageKey}`
 
   useEffect(() => {
     axios.get(`${API_BASE}/api/content`)
@@ -81,11 +81,15 @@ const HomePage = () => {
       .finally(() => setLoading(false))
   }, [])
 
+  const refreshImage = () => {
+    setImageKey(Date.now())
+    setImageError(false)
+  }
+
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-t-2 border-purple-500" /></div>
 
   return (
     <div className="bg-black text-white">
-      {/* Hero Section */}
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 animate-gradient" />
         <div className="relative z-10 text-center px-6">
@@ -96,6 +100,7 @@ const HomePage = () => {
                 alt="Profile" 
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}
+                onLoad={() => console.log('Image loaded successfully')}
               />
             </div>
           ) : (
@@ -108,7 +113,6 @@ const HomePage = () => {
         </div>
       </div>
       
-      {/* Content Sections */}
       <div className="max-w-7xl mx-auto px-6 py-24 space-y-32">
         <div className="grid md:grid-cols-2 gap-12">
           <Card3D>
@@ -245,6 +249,7 @@ const AdminPanel = () => {
   const [imageUrl, setImageUrl] = useState(null)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -255,7 +260,7 @@ const AdminPanel = () => {
       setContent(c.data)
       setWorks(w.data)
       setSocial(s.data)
-      setImageUrl(`${API_BASE}/api/profile-image/raw`)
+      setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
@@ -266,18 +271,45 @@ const AdminPanel = () => {
   
   const uploadImage = async (e) => {
     const file = e.target.files[0]
-    if (!file) return
+    if (!file) {
+      setMessage('Please select a file')
+      return
+    }
+    
+    setUploading(true)
     setMessage('Uploading...')
+    
     const reader = new FileReader()
-    reader.onloadend = async () => {
+    reader.onload = async () => {
       try {
-        await axios.post(`${API_BASE}/api/admin/upload-image`, { imageData: reader.result, mimeType: file.type })
-        setMessage('Image uploaded!')
-        setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
-        setTimeout(() => setMessage(''), 3000)
+        const imageData = reader.result
+        console.log('Sending image:', { mimeType: file.type, dataLength: imageData.length })
+        
+        const response = await axios.post(`${API_BASE}/api/admin/upload-image`, {
+          imageData: imageData,
+          mimeType: file.type
+        })
+        
+        console.log('Upload response:', response.data)
+        
+        if (response.data.success) {
+          setMessage(`Success! ${response.data.message}`)
+          // Refresh image with cache busting
+          setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
+        } else {
+          setMessage('Upload failed: ' + (response.data.error || 'Unknown error'))
+        }
       } catch (err) {
-        setMessage('Error: ' + err.message)
+        console.error('Upload error:', err)
+        setMessage('Error: ' + (err.response?.data?.error || err.message))
+      } finally {
+        setUploading(false)
+        setTimeout(() => setMessage(''), 3000)
       }
+    }
+    reader.onerror = () => {
+      setMessage('Error reading file')
+      setUploading(false)
     }
     reader.readAsDataURL(file)
   }
@@ -297,7 +329,7 @@ const AdminPanel = () => {
     <div className="bg-black min-h-screen pt-24 px-6 pb-12">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Admin Panel</h1>
-        {message && <div className="bg-green-500/20 border border-green-500 rounded-lg p-4 mb-6 text-green-400">{message}</div>}
+        {message && <div className={`border rounded-lg p-4 mb-6 ${message.includes('Success') || message.includes('saved') ? 'bg-green-500/20 border-green-500 text-green-400' : 'bg-yellow-500/20 border-yellow-500 text-yellow-400'}`}>{message}</div>}
         <div className="flex gap-4 mb-6 flex-wrap">
           {['basic', 'works', 'social', 'image'].map(t => <button key={t} onClick={() => setTab(t)} className={`px-6 py-2 rounded-lg ${tab === t ? 'bg-purple-600' : 'bg-white/5 border border-white/10'}`}>{t}</button>)}
         </div>
@@ -307,8 +339,8 @@ const AdminPanel = () => {
               <input type="text" placeholder="Name" value={content.name} onChange={e => setContent({...content, name: e.target.value})} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white" />
               <input type="text" placeholder="Title" value={content.title} onChange={e => setContent({...content, title: e.target.value})} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white" />
               <textarea placeholder="Bio" value={content.bio} onChange={e => setContent({...content, bio: e.target.value})} rows="4" className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white" />
-              <textarea placeholder='Education JSON - Example: [{"degree":"BSc CS","institution":"University","year":"2020"}]' value={JSON.stringify(content.education, null, 2)} onChange={e => { try { setContent({...content, education: JSON.parse(e.target.value)}) } catch {} }} rows="6" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
-              <textarea placeholder='Expertise JSON - Example: ["React", "Node.js"]' value={JSON.stringify(content.expertise, null, 2)} onChange={e => { try { setContent({...content, expertise: JSON.parse(e.target.value)}) } catch {} }} rows="4" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
+              <textarea placeholder='Education JSON' value={JSON.stringify(content.education, null, 2)} onChange={e => { try { setContent({...content, education: JSON.parse(e.target.value)}) } catch {} }} rows="6" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
+              <textarea placeholder='Expertise JSON' value={JSON.stringify(content.expertise, null, 2)} onChange={e => { try { setContent({...content, expertise: JSON.parse(e.target.value)}) } catch {} }} rows="4" className="w-full font-mono text-sm bg-black/50 border border-white/10 rounded-lg p-2 text-white" />
               <button onClick={updateContent} className="px-6 py-2 bg-purple-600 rounded-lg">Save Content</button>
             </div>
           )}
@@ -347,11 +379,19 @@ const AdminPanel = () => {
                   src={imageUrl} 
                   alt="Profile" 
                   className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
-                  onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerHTML += '<div class="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="text-4xl">👤</span></div>' }}
+                  onError={(e) => { console.error('Admin image failed to load'); e.target.style.display = 'none' }}
+                  onLoad={() => console.log('Admin image loaded')}
                 />
               )}
-              <input type="file" accept="image/*" onChange={uploadImage} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg cursor-pointer text-white" />
-              <p className="text-sm text-gray-400">Image stored as BLOB in D1, served as raw binary</p>
+              <input 
+                type="file" 
+                accept="image/jpeg,image/png,image/gif,image/webp" 
+                onChange={uploadImage} 
+                disabled={uploading}
+                className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg cursor-pointer text-white disabled:opacity-50"
+              />
+              {uploading && <div className="text-purple-400">Uploading... please wait</div>}
+              <p className="text-sm text-gray-400">Select a JPG or PNG image. It will be stored as BLOB in D1.</p>
             </div>
           )}
         </div>
