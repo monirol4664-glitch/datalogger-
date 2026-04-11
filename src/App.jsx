@@ -66,28 +66,28 @@ const Card3D = ({ children }) => {
 }
 
 // Home Page
+// Home Page
 const HomePage = () => {
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
-  const [imageError, setImageError] = useState(false)
-  const [imageKey, setImageKey] = useState(Date.now())
+  const [imageDataUrl, setImageDataUrl] = useState(null)
   const [loading, setLoading] = useState(true)
-  
-  
-
-// To this:
-const imageUrl = `${API_BASE}/api/image?t=${imageKey}`
 
   useEffect(() => {
+    // Fetch content
     axios.get(`${API_BASE}/api/content`)
       .then(res => setContent(res.data))
       .catch(console.error)
+    
+    // Fetch image as JSON with data URL
+    axios.get(`${API_BASE}/api/image`)
+      .then(res => {
+        if (res.data.hasImage && res.data.imageUrl) {
+          setImageDataUrl(res.data.imageUrl)
+        }
+      })
+      .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
-
-  const refreshImage = () => {
-    setImageKey(Date.now())
-    setImageError(false)
-  }
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-t-2 border-purple-500" /></div>
 
@@ -96,14 +96,12 @@ const imageUrl = `${API_BASE}/api/image?t=${imageKey}`
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 animate-gradient" />
         <div className="relative z-10 text-center px-6">
-          {!imageError ? (
+          {imageDataUrl ? (
             <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl hover:scale-105 transition duration-300">
               <img 
-                src={imageUrl} 
+                src={imageDataUrl} 
                 alt="Profile" 
                 className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-                onLoad={() => console.log('Image loaded successfully')}
               />
             </div>
           ) : (
@@ -255,17 +253,20 @@ const AdminPanel = () => {
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    Promise.all([
-      axios.get(`${API_BASE}/api/content`),
-      axios.get(`${API_BASE}/api/works`),
-      axios.get(`${API_BASE}/api/social-links`)
-    ]).then(([c, w, s]) => {
-      setContent(c.data)
-      setWorks(w.data)
-      setSocial(s.data)
-      setImageUrl(`${API_BASE}/api/image?t=${Date.now()}`)
-      setLoading(false)
-    }).catch(() => setLoading(false))
+   Promise.all([
+  axios.get(`${API_BASE}/api/content`),
+  axios.get(`${API_BASE}/api/works`),
+  axios.get(`${API_BASE}/api/social-links`),
+  axios.get(`${API_BASE}/api/image`)
+]).then(([c, w, s, img]) => {
+  setContent(c.data)
+  setWorks(w.data)
+  setSocial(s.data)
+  if (img.data.hasImage && img.data.imageUrl) {
+    setImagePreview(img.data.imageUrl)
+  }
+  setLoading(false)
+})
   }, [])
 
   const updateContent = async () => {
@@ -273,49 +274,47 @@ const AdminPanel = () => {
   }
   
   const uploadImage = async (e) => {
-    const file = e.target.files[0]
-    if (!file) {
-      setMessage('Please select a file')
-      return
-    }
-    
-    setUploading(true)
-    setMessage('Uploading...')
-    
-    const reader = new FileReader()
-    reader.onload = async () => {
-      try {
-        const imageData = reader.result
-        console.log('Sending image:', { mimeType: file.type, dataLength: imageData.length })
-        
-        const response = await axios.post(`${API_BASE}/api/admin/upload-image`, {
-          imageData: imageData,
-          mimeType: file.type
-        })
-        
-        console.log('Upload response:', response.data)
-        
-        if (response.data.success) {
-          setMessage(`Success! ${response.data.message}`)
-          // Refresh image with cache busting
-          setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
-        } else {
-          setMessage('Upload failed: ' + (response.data.error || 'Unknown error'))
-        }
-      } catch (err) {
-        console.error('Upload error:', err)
-        setMessage('Error: ' + (err.response?.data?.error || err.message))
-      } finally {
-        setUploading(false)
-        setTimeout(() => setMessage(''), 3000)
-      }
-    }
-    reader.onerror = () => {
-      setMessage('Error reading file')
-      setUploading(false)
-    }
-    reader.readAsDataURL(file)
+  const file = e.target.files[0]
+  if (!file) {
+    setMessage('Please select a file')
+    return
   }
+  
+  setUploading(true)
+  setMessage('Uploading...')
+  
+  const reader = new FileReader()
+  reader.onload = async () => {
+    try {
+      const response = await axios.post(`${API_BASE}/api/admin/upload-image`, {
+        imageData: reader.result,
+        mimeType: file.type
+      })
+      
+      if (response.data.success) {
+        setMessage(`Success! ${response.data.message}`)
+        // Refresh the image preview
+        const imgRes = await axios.get(`${API_BASE}/api/image`)
+        if (imgRes.data.hasImage && imgRes.data.imageUrl) {
+          setImagePreview(imgRes.data.imageUrl)
+        }
+      } else {
+        setMessage('Upload failed: ' + (response.data.error || 'Unknown error'))
+      }
+    } catch (err) {
+      console.error('Upload error:', err)
+      setMessage('Error: ' + (err.response?.data?.error || err.message))
+    } finally {
+      setUploading(false)
+      setTimeout(() => setMessage(''), 3000)
+    }
+  }
+  reader.onerror = () => {
+    setMessage('Error reading file')
+    setUploading(false)
+  }
+  reader.readAsDataURL(file)
+}
   
   const addWork = () => setWorks([...works, { title: '', description: '', url: '', type: 'website', thumbnail: '' }])
   const updateWork = (i, f, v) => { const w = [...works]; w[i][f] = v; setWorks(w) }
@@ -377,15 +376,18 @@ const AdminPanel = () => {
           )}
           {tab === 'image' && (
             <div className="space-y-6 text-center">
-              {imageUrl && (
-                <img 
-                  src={imageUrl} 
-                  alt="Profile" 
-                  className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
-                  onError={(e) => { console.error('Admin image failed to load'); e.target.style.display = 'none' }}
-                  onLoad={() => console.log('Admin image loaded')}
-                />
-              )}
+              {imagePreview && (
+  <img 
+    src={imagePreview} 
+    alt="Profile" 
+    className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
+  />
+)}
+{!imagePreview && (
+  <div className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+    <span className="text-4xl">👤</span>
+  </div>
+)}
               <input 
                 type="file" 
                 accept="image/jpeg,image/png,image/gif,image/webp" 
