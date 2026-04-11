@@ -269,18 +269,27 @@ const AdminPanel = () => {
   const updateContent = async () => {
     try { await axios.post(`${API_BASE}/api/admin/update-content`, content); setMessage('Content saved'); setTimeout(() => setMessage(''), 3000) } catch { setMessage('Error') }
   }
-  const uploadImage = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      await axios.post(`${API_BASE}/api/admin/upload-image`, { imageData: reader.result, mimeType: file.type })
-      setMessage('Image uploaded')
+  // Replace the existing uploadImage function with this:
+const uploadImage = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onloadend = async () => {
+    try {
+      await axios.post(`${API_BASE}/api/admin/upload-image`, { 
+        imageData: reader.result, 
+        mimeType: file.type 
+      })
+      setMessage('Image uploaded successfully!')
+      // Add cache-busting timestamp
       setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
       setTimeout(() => setMessage(''), 3000)
+    } catch (err) {
+      setMessage('Error uploading image: ' + err.message)
     }
-    reader.readAsDataURL(file)
   }
+  reader.readAsDataURL(file)
+}
   const addWork = () => setWorks([...works, { title: '', description: '', url: '', type: 'website', thumbnail: '' }])
   const updateWork = (i, f, v) => { const w = [...works]; w[i][f] = v; setWorks(w) }
   const delWork = (i) => setWorks(works.filter((_, idx) => idx !== i))
