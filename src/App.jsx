@@ -71,7 +71,7 @@ const Card3D = ({ children }) => {
 }
 
 // Hero with 3D tilt
-const Hero = ({ name, title, imageUrl }) => {
+const Hero = ({ name, title, imageUrl, imageError, onImageError }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 })
   const ref = useRef()
   const handleMove = (e) => {
@@ -82,12 +82,28 @@ const Hero = ({ name, title, imageUrl }) => {
       setRotate({ x: y * 20, y: x * 20 })
     }
   }
+  
+  console.log('Hero rendering with imageUrl:', imageUrl)
+  
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20 animate-gradient" />
       <div className="relative z-10 text-center px-6">
         <div ref={ref} onMouseMove={handleMove} onMouseLeave={() => setRotate({ x: 0, y: 0 })} style={{ transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)` }} className="transition-transform duration-200">
-          {imageUrl && <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl hover:scale-105 transition"><img src={imageUrl} alt="Profile" className="w-full h-full object-cover" /></div>}
+          {imageUrl && !imageError ? (
+            <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl hover:scale-105 transition">
+              <img 
+                src={imageUrl} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+                onError={onImageError}
+              />
+            </div>
+          ) : (
+            <div className="w-40 h-40 mx-auto mb-8 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+              <span className="text-4xl">👤</span>
+            </div>
+          )}
           <h1 className="text-6xl md:text-8xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-gradient">{name || 'John Doe'}</h1>
           <p className="text-xl md:text-2xl text-gray-300 tracking-wide">{title || 'Creative Developer'}</p>
         </div>
@@ -100,16 +116,46 @@ const Hero = ({ name, title, imageUrl }) => {
 const HomePage = () => {
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
   const [imageUrl, setImageUrl] = useState(null)
+  const [imageError, setImageError] = useState(false)
   const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    axios.get(`${API_BASE}/api/content`).then(res => setContent(res.data)).catch(console.error)
-    setImageUrl(`${API_BASE}/api/profile-image/raw`)
-    setLoading(false)
+    const fetchData = async () => {
+      try {
+        // Fetch content
+        const contentRes = await axios.get(`${API_BASE}/api/content`)
+        setContent(contentRes.data)
+        
+        // Set image URL directly (no fetch needed - browser will load it)
+        const url = `${API_BASE}/api/profile-image/raw`
+        console.log('Setting image URL to:', url)
+        setImageUrl(url)
+        
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
   }, [])
+
+  const handleImageError = () => {
+    console.error('Image failed to load:', imageUrl)
+    setImageError(true)
+  }
+
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-t-2 border-purple-500" /></div>
+
   return (
     <div className="bg-black text-white">
-      <Hero name={content.name} title={content.title} imageUrl={imageUrl} />
+      <Hero 
+        name={content.name} 
+        title={content.title} 
+        imageUrl={imageUrl}
+        imageError={imageError}
+        onImageError={handleImageError}
+      />
       <div className="max-w-7xl mx-auto px-6 py-24 space-y-32">
         <div className="grid md:grid-cols-2 gap-12">
           <Section delay={0.2}>
@@ -269,27 +315,26 @@ const AdminPanel = () => {
   const updateContent = async () => {
     try { await axios.post(`${API_BASE}/api/admin/update-content`, content); setMessage('Content saved'); setTimeout(() => setMessage(''), 3000) } catch { setMessage('Error') }
   }
-  // Replace the existing uploadImage function with this:
-const uploadImage = async (e) => {
-  const file = e.target.files[0]
-  if (!file) return
-  const reader = new FileReader()
-  reader.onloadend = async () => {
-    try {
-      await axios.post(`${API_BASE}/api/admin/upload-image`, { 
-        imageData: reader.result, 
-        mimeType: file.type 
-      })
-      setMessage('Image uploaded successfully!')
-      // Add cache-busting timestamp
-      setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
-      setTimeout(() => setMessage(''), 3000)
-    } catch (err) {
-      setMessage('Error uploading image: ' + err.message)
+  
+  const uploadImage = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setMessage('Uploading...')
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      try {
+        await axios.post(`${API_BASE}/api/admin/upload-image`, { imageData: reader.result, mimeType: file.type })
+        setMessage('Image uploaded!')
+        // Add cache-busting timestamp
+        setImageUrl(`${API_BASE}/api/profile-image/raw?t=${Date.now()}`)
+        setTimeout(() => setMessage(''), 3000)
+      } catch (err) {
+        setMessage('Error: ' + err.message)
+      }
     }
+    reader.readAsDataURL(file)
   }
-  reader.readAsDataURL(file)
-}
+  
   const addWork = () => setWorks([...works, { title: '', description: '', url: '', type: 'website', thumbnail: '' }])
   const updateWork = (i, f, v) => { const w = [...works]; w[i][f] = v; setWorks(w) }
   const delWork = (i) => setWorks(works.filter((_, idx) => idx !== i))
@@ -300,6 +345,7 @@ const uploadImage = async (e) => {
   const saveSocial = async () => { await axios.post(`${API_BASE}/api/admin/update-social-links`, { socialLinks: social }); setMessage('Social saved'); setTimeout(() => setMessage(''), 3000) }
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-t-2 border-purple-500" /></div>
+  
   return (
     <div className="bg-black min-h-screen pt-24 px-6 pb-12">
       <div className="max-w-6xl mx-auto">
@@ -349,9 +395,20 @@ const uploadImage = async (e) => {
           )}
           {tab === 'image' && (
             <div className="space-y-6 text-center">
-              {imageUrl && <img src={imageUrl} alt="Profile" className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover" />}
+              {imageUrl ? (
+                <img 
+                  src={imageUrl} 
+                  alt="Profile" 
+                  className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
+                  onError={(e) => { console.error('Admin image failed to load'); e.target.src = ''; e.target.parentElement.innerHTML = '<div class="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="text-4xl">👤</span></div>' }}
+                />
+              ) : (
+                <div className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                  <span className="text-4xl">👤</span>
+                </div>
+              )}
               <input type="file" accept="image/*" onChange={uploadImage} className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg cursor-pointer text-white" />
-              <p className="text-sm text-gray-400">Image stored as BLOB in D1, served as raw binary (no size limits)</p>
+              <p className="text-sm text-gray-400">Upload a profile picture. Supports JPG, PNG, GIF (up to ~1MB due to D1 limits)</p>
             </div>
           )}
         </div>
