@@ -65,8 +65,7 @@ const Card3D = ({ children }) => {
   )
 }
 
-// Home Page
-// Home Page
+// Home Page (UPDATED - fetches image as JSON data URL)
 const HomePage = () => {
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
   const [imageDataUrl, setImageDataUrl] = useState(null)
@@ -241,32 +240,32 @@ const AdminLogin = ({ onLogin }) => {
   )
 }
 
-// Admin Panel
+// Admin Panel (UPDATED - image as base64 TEXT)
 const AdminPanel = () => {
   const [tab, setTab] = useState('basic')
   const [content, setContent] = useState({ name: '', title: '', bio: '', education: [], expertise: [] })
   const [works, setWorks] = useState([])
   const [social, setSocial] = useState([])
-  const [imageUrl, setImageUrl] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-   Promise.all([
-  axios.get(`${API_BASE}/api/content`),
-  axios.get(`${API_BASE}/api/works`),
-  axios.get(`${API_BASE}/api/social-links`),
-  axios.get(`${API_BASE}/api/image`)
-]).then(([c, w, s, img]) => {
-  setContent(c.data)
-  setWorks(w.data)
-  setSocial(s.data)
-  if (img.data.hasImage && img.data.imageUrl) {
-    setImagePreview(img.data.imageUrl)
-  }
-  setLoading(false)
-})
+    Promise.all([
+      axios.get(`${API_BASE}/api/content`),
+      axios.get(`${API_BASE}/api/works`),
+      axios.get(`${API_BASE}/api/social-links`),
+      axios.get(`${API_BASE}/api/image`)
+    ]).then(([c, w, s, img]) => {
+      setContent(c.data)
+      setWorks(w.data)
+      setSocial(s.data)
+      if (img.data.hasImage && img.data.imageUrl) {
+        setImagePreview(img.data.imageUrl)
+      }
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   const updateContent = async () => {
@@ -274,47 +273,47 @@ const AdminPanel = () => {
   }
   
   const uploadImage = async (e) => {
-  const file = e.target.files[0]
-  if (!file) {
-    setMessage('Please select a file')
-    return
-  }
-  
-  setUploading(true)
-  setMessage('Uploading...')
-  
-  const reader = new FileReader()
-  reader.onload = async () => {
-    try {
-      const response = await axios.post(`${API_BASE}/api/admin/upload-image`, {
-        imageData: reader.result,
-        mimeType: file.type
-      })
-      
-      if (response.data.success) {
-        setMessage(`Success! ${response.data.message}`)
-        // Refresh the image preview
-        const imgRes = await axios.get(`${API_BASE}/api/image`)
-        if (imgRes.data.hasImage && imgRes.data.imageUrl) {
-          setImagePreview(imgRes.data.imageUrl)
-        }
-      } else {
-        setMessage('Upload failed: ' + (response.data.error || 'Unknown error'))
-      }
-    } catch (err) {
-      console.error('Upload error:', err)
-      setMessage('Error: ' + (err.response?.data?.error || err.message))
-    } finally {
-      setUploading(false)
-      setTimeout(() => setMessage(''), 3000)
+    const file = e.target.files[0]
+    if (!file) {
+      setMessage('Please select a file')
+      return
     }
+    
+    setUploading(true)
+    setMessage('Uploading...')
+    
+    const reader = new FileReader()
+    reader.onload = async () => {
+      try {
+        const response = await axios.post(`${API_BASE}/api/admin/upload-image`, {
+          imageData: reader.result,
+          mimeType: file.type
+        })
+        
+        if (response.data.success) {
+          setMessage(`Success! ${response.data.message}`)
+          // Refresh the image preview
+          const imgRes = await axios.get(`${API_BASE}/api/image`)
+          if (imgRes.data.hasImage && imgRes.data.imageUrl) {
+            setImagePreview(imgRes.data.imageUrl)
+          }
+        } else {
+          setMessage('Upload failed: ' + (response.data.error || 'Unknown error'))
+        }
+      } catch (err) {
+        console.error('Upload error:', err)
+        setMessage('Error: ' + (err.response?.data?.error || err.message))
+      } finally {
+        setUploading(false)
+        setTimeout(() => setMessage(''), 3000)
+      }
+    }
+    reader.onerror = () => {
+      setMessage('Error reading file')
+      setUploading(false)
+    }
+    reader.readAsDataURL(file)
   }
-  reader.onerror = () => {
-    setMessage('Error reading file')
-    setUploading(false)
-  }
-  reader.readAsDataURL(file)
-}
   
   const addWork = () => setWorks([...works, { title: '', description: '', url: '', type: 'website', thumbnail: '' }])
   const updateWork = (i, f, v) => { const w = [...works]; w[i][f] = v; setWorks(w) }
@@ -376,18 +375,17 @@ const AdminPanel = () => {
           )}
           {tab === 'image' && (
             <div className="space-y-6 text-center">
-              {imagePreview && (
-  <img 
-    src={imagePreview} 
-    alt="Profile" 
-    className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
-  />
-)}
-{!imagePreview && (
-  <div className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-    <span className="text-4xl">👤</span>
-  </div>
-)}
+              {imagePreview ? (
+                <img 
+                  src={imagePreview} 
+                  alt="Profile" 
+                  className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 object-cover"
+                />
+              ) : (
+                <div className="w-48 h-48 rounded-full mx-auto border-4 border-purple-500 bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                  <span className="text-4xl">👤</span>
+                </div>
+              )}
               <input 
                 type="file" 
                 accept="image/jpeg,image/png,image/gif,image/webp" 
@@ -396,7 +394,7 @@ const AdminPanel = () => {
                 className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg cursor-pointer text-white disabled:opacity-50"
               />
               {uploading && <div className="text-purple-400">Uploading... please wait</div>}
-              <p className="text-sm text-gray-400">Select a JPG or PNG image. It will be stored as BLOB in D1.</p>
+              <p className="text-sm text-gray-400">Select a JPG or PNG image. It will be stored as base64 in D1.</p>
             </div>
           )}
         </div>
